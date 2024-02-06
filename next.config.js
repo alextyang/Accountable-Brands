@@ -9,6 +9,9 @@ const nextConfig = {
       }, {
         protocol: 'https',
         hostname: 'collab.accountablebrand.org'
+      },  {
+        protocol: 'https',
+        hostname: 'upload.wikimedia.org'
       },
     ],
   },

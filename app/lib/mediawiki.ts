@@ -66,7 +66,7 @@ export async function fetchBrandPage(pageName: string, revalidate?:boolean): Pro
     const pageResponse = await fetchPageHTMLString(pageName, revalidate);
 
     const datatableHTMLString = locateParam(pageResponse, WIKI_HTML_MAP.DATATABLE); // Separate data
-    if (DEBUG) {console.log('[MediaWiki] Recieved string: ');  console.log({pageResponse}); }
+    // if (DEBUG) {console.log('[MediaWiki] Recieved string: ');  console.log({pageResponse}); }
     const logoUrl = locateParam(datatableHTMLString, BRAND_HTML_MAP.LOGO_URL);
     const coverUrl = locateParam(datatableHTMLString, BRAND_HTML_MAP.COVER_URL);
 
@@ -93,14 +93,14 @@ export async function fetchBrandPage(pageName: string, revalidate?:boolean): Pro
         } ).splice(1),
     };
 
-    if (DEBUG) { console.log('[MediaWiki] Interpreted page data: '); console.log(pageData); }
+    // if (DEBUG) { console.log('[MediaWiki] Interpreted page data: '); console.log(pageData); }
     return pageData;
 }
 
 
 
 const REPORT_HTML_MAP = { // MediaWiki report page HTML structure
-    TYPE:{  startToken: "class=\"report-md-type-div\">\n", 
+    TYPE:{  startToken: "class=\"report-md-type-div\">", 
                 endToken: "</td></tr><tr><th scope=\"row\" class=\"mw-capiunto-infobox-label\">Date(s)"},
     TIMEFRAME:{  startToken: "class=\"brand-md-timeframe-div\">\n", 
                 endToken: "</td></tr></tbody>"},
@@ -132,7 +132,7 @@ export async function fetchReportPages(pageNames: string[], revalidate?: boolean
             };
         }
     );
-    // if (DEBUG) { console.log('[MediaWiki] Interpreted reports as: '); reportPageDatas.map(item => console.log(item)); }
+    if (DEBUG) { console.log('[MediaWiki] Interpreted reports as: '); reportPageDatas.map(item => console.log(item)); }
     
 
     return reportPageDatas;
