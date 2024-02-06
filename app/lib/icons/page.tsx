@@ -3,16 +3,6 @@
 import { LOW_SCORE_CUTOFF, missingIcons, saveMissingIconData } from "@/app/lib/icons/dynamicIcons";
 import { IgnoreButton } from "./iconMenu";
 
-
-
-export async function ignoreMissingIconForQuery(key:string) {
-    console.log('Marking '+key+' to ignore.')
-    if (!missingIcons[key]) return;
-    missingIcons[key].ignoreScore = missingIcons[key].priority;
-    saveMissingIconData(missingIcons);
-}
-
-
 export default async function Page() {
     const keysArray = Object.keys(missingIcons).sort(function(first,second) {
         return (missingIcons[second].priority - missingIcons[second].ignoreScore) - (missingIcons[first].priority - missingIcons[first].ignoreScore);

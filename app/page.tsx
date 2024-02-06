@@ -41,10 +41,10 @@ export default function Home() {
 
         {/* Report Types */}
         <Icon styles='h-24 w-24 mb-12 mt-px opacity-30' name='search-document' />
-        <TypeExplainer number='3'/>
+        <TypeExplainer number='Anti-Consumer Tactics'/>
         <div className='max-w-screen-xl mt-10 lg:mt-8 gap-10 lg:gap-32 w-full flex flex-col lg:flex-row lg:justify-around items-center '>
-          <TypeExplainer number='2'/>
-          <TypeExplainer number='1'/>
+          <TypeExplainer number='Political Profits'/>
+          <TypeExplainer number='Human Rights Abuse'/>
         </div>
 
         {/* Arrows */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { ignoreMissingIconForQuery } from "./page";
+import { ignoreMissingIconForQuery } from './actions';
 
 
 
