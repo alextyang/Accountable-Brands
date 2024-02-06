@@ -109,10 +109,10 @@ export default function Home() {
         <div className='text-center max-w-xl flex flex-col justify-center items-center mt-20'>
           <Icon styles='h-24 w-24 mb-6 opacity-100' name='questions' />
 
-          <h3 className='font-medium text-lg'>What if I (or others) can't afford to choose better brands?</h3>
+          <h3 className='font-medium text-lg'>What if I (or others) can&apos;t afford to choose better brands?</h3>
           <p className='mt-1 text-base'>Corporate price-gouging has crippled affordable local business. This resource should not be used to judge those without a choice. Individual purchasing decisions, especially when coerced, should never take the blame.<br/><br/>Supporting people-first regulations, reforms, and community solutions is much more important.</p>
 
-          <h3 className='mt-14 font-medium text-lg'>' There's no ethical consumption under capitalism anyways. '</h3>
+          <h3 className='mt-14 font-medium text-lg'>&apos; There&apos;s no ethical consumption under capitalism anyways. &apos;</h3>
           <p className='mt-1 text-base px-2'>Our mission is to empower people to make informed decisions about who they support and how. Small choices are the first step towards broader awareness and activism.<br/><br/>Underlying change may seem impossible — but corporate PR & the news cycle are designed to make it seem that way.</p>
 
           <h3 className='mt-14 font-medium text-lg'>Think cancel culture is toxic & unproductive?</h3>

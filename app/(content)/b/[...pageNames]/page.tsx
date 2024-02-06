@@ -66,6 +66,8 @@ async function ReportsPage({brandData}:{brandData:BrandPage}) {
     if (!brandData.reportNames || brandData.reportNames.length < 1) 
         return (<NoReportsFound brandName={brandData.title}/>);
     const reports = await fetchReportPages(brandData.reportNames, false);
+    if (!reports || reports.length < 1) 
+        return (<NoReportsFound brandName={brandData.title}/>);
 
     return (
         <div>
@@ -79,7 +81,7 @@ function NoReportsFound({brandName}:{brandName:string}) {
     return (
       <div className='flex flex-col w-full justify-center items-center p-16'>
           <Icon styles='w-16 h-16 mb-4 opacity-60' name='info' />
-          <p className='text-3xl font-medium opacity-75'>'{brandName}' has no reports yet.</p>
+          <p className='text-3xl font-medium opacity-75'>&apos;{brandName}&apos; has no reports yet.</p>
           <a target="_blank" rel="noopener noreferrer" href={MW_URL+'/wiki/'+brandName} className='text-xl mt-14 font-medium opacity-75 text-center'>Found something? <span className='underline underline-offset-1'>Add it here!</span></a>
       </div>
     )

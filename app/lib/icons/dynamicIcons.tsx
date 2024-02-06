@@ -114,7 +114,7 @@ export async function ProductIcons({styles="",names,excludeIndustry,pageName,col
     
     return productIconResults.map(productIcon => {
         return (
-        <div className={styles + ' inline icon-svg'}>
+        <div key={productIcon.name} className={styles + ' inline icon-svg'}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960"><path d={productIcon.path} fill={color}/></svg>
         </div>);
     });

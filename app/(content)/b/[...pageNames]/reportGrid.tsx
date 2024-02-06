@@ -3,7 +3,7 @@
 import { Icon } from "@/app/lib/icons/ui-icons";
 import ActionMenu from "./actionMenu";
 import { ReportPage, REPORT_TYPES, B_URL } from "@/app/lib/definitions";
-import { MutableRefObject, RefObject, SetStateAction, createRef, forwardRef, useEffect, useRef, useState } from "react";
+import { ForwardedRef, MutableRefObject, RefObject, SetStateAction, createRef, forwardRef, useEffect, useRef, useState } from "react";
 import ClickOutside from "@/app/lib/utils/ClickOutside";
 import { Transition, TransitionStatus } from "react-transition-group";
 import { EXITED } from "react-transition-group/Transition";
@@ -12,9 +12,7 @@ import { usePathname, useParams, useRouter, useSearchParams } from 'next/navigat
 
 
 
-export function ReportGrid ({reports}:{reports:ReportPage[]|undefined}) {
-    if (!reports) return ''; // Skip bad requests
-
+export function ReportGrid ({reports}:{reports:ReportPage[]}) {
     const params = useParams();
     const [brandName, reportName] = [decodeURI(params.pageNames[0]), decodeURI(params.pageNames[1])];
 
@@ -26,7 +24,7 @@ export function ReportGrid ({reports}:{reports:ReportPage[]|undefined}) {
     const [modalOriginBox, setModalOriginBox] = useState<DOMRect | undefined>(undefined); // Save starting bounds for modal animation 
     const [modalOffsetBox, setModalOffsetBox] = useState<DOMRect | undefined>(undefined); // Save starting bounds for modal animation 
     const gridRef: MutableRefObject<HTMLDivElement|null> = useRef(null);
-    const reportDivRefs: MutableRefObject<HTMLDivElement|null>[] = reports.map(()=>{return useRef(null)}); // Maintain references to each potential starting div
+    const reportDivRefs: MutableRefObject<HTMLDivElement|null>[] = Array(reports.length).fill(useRef(null)); // Maintain references to each potential starting div
 
     const duration = 300; // Modal animation duration
     const TOTAL_DURATION = 500; // Modal animation duration
@@ -90,7 +88,7 @@ export function ReportGrid ({reports}:{reports:ReportPage[]|undefined}) {
             <div ref={gridRef} className='flex flex-row flex-wrap h-full justify-stretch relative -m-2 mt-1'> {/* Report Grid */}
                 {reports.map( (report, index) => {
                     return (
-                        <ReportItem key={index} report={report}   ref={reportDivRefs[index]}   index={index} openReport={openReport} setOpenReport={setReport}></ReportItem>
+                        <ReportItemForwarded key={index} report={report}   ref={reportDivRefs[index]}   index={index} openReport={openReport} setOpenReport={setReport}></ReportItemForwarded>
                 )})}
                 <div className='grow h-48'> <div className='w-full'></div> </div>
 
@@ -137,7 +135,9 @@ export function ReportGrid ({reports}:{reports:ReportPage[]|undefined}) {
 
 
 
-const ReportItem = forwardRef<HTMLDivElement, {report:ReportPage|undefined,openReport:number,index:number,setOpenReport:Function}>(({report, index, openReport, setOpenReport}, ref) => {
+const ReportItemForwarded = forwardRef<HTMLDivElement, {report:ReportPage|undefined,openReport:number,index:number,setOpenReport:Function}>(ReportItem);
+
+function ReportItem ({report, index, openReport, setOpenReport}:{report:ReportPage|undefined,openReport:number,index:number,setOpenReport:Function}, ref:ForwardedRef<HTMLDivElement>) {
     if (!report) return '';
     const isThisReportOpen = (index == openReport);
 
@@ -164,7 +164,7 @@ const ReportItem = forwardRef<HTMLDivElement, {report:ReportPage|undefined,openR
             </div>
     );
 
-});
+}
 
 function AnimatedReportModal({duration, state, report, setOpenReport, modalOriginBox, modalOffsetBox}:{duration:number,state:TransitionStatus,report:ReportPage|undefined,setOpenReport:Function,modalOriginBox:DOMRect|undefined,modalOffsetBox:DOMRect|undefined}) {
     if (!modalOriginBox||!modalOffsetBox||!report) return '';

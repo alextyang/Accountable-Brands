@@ -5,7 +5,7 @@ const nextConfig = {
       {
         protocol: 'http',
         hostname: 'localhost',
-        port: '8080'      
+        port: process.env.PORT     
       }, {
         protocol: 'https',
         hostname: 'collab.accountablebrand.org'

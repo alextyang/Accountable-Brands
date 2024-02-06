@@ -20,7 +20,7 @@ export default async function SearchResults({ searchQuery, pageNumber = 0, resul
       <div className={'flex flex-col items-center justify-start w-full mb-8'+styles}>
         {searchResponse.map((item) => {
           return (
-          <Suspense fallback={LoadingSearchRow()}>
+          <Suspense key={item} fallback={<LoadingSearchRow/>}>
             <SearchResultRow key={item} brandName={item}></SearchResultRow>
           </Suspense>
           )
@@ -111,7 +111,7 @@ export const SEARCH_ITEM_STYLES = ' shrink-0 h-52 grow relative max-w-128 text-x
     return (
       <div className='flex flex-col w-full justify-center items-center p-16 text-center'>
           <Icon styles='w-28 h-28 mb-4 opacity-60' name='no-results' />
-          <p className='text-3xl font-medium opacity-75'>Couldn't find anything for '{query}' </p>
+          <p className='text-3xl font-medium opacity-75'>Couldn&apos;t find anything for &apos;{query}&apos; </p>
           <p className='text-xl font-medium opacity-60'>Searched all brands, products, and industries.</p>
           <a target="_blank" rel="noopener noreferrer" href={ADD_BRAND_URL} className='text-xl mt-14 font-medium opacity-75 text-center'>Are we missing a brand? <span className='underline underline-offset-1'>Add it here!</span></a>
       </div>
