@@ -56,7 +56,7 @@ export type ReportPage = { // Structure of parsed report page
 }
 
 export const REPORT_TYPES: {[key:string]:{name:string,longname:string,examples:string,color:string,text:string,icon:string,iconStyle:string,textLength:string}} = {
-    'Human Rights Abuse': {name:'Human Rights',longname:'Human Rights Abuse',examples:'In responsibility or participation.',color:'bg-red',text:'text-red',icon:'candle',iconStyle:'pr-1',textLength:'295px'},
-    'Political Profits': {name:'Political Profits',longname:'Political Profits',examples:'Lobbying, taxpayer burden, corruption.',color:'bg-blue',text:'text-blue',icon:'eye',iconStyle:'p-1',textLength:'310px'},
+    'Human Rights Abuse': {name:'Human Rights',longname:'Human Rights Abuse',examples:'In responsibility or participation.',color:'bg-red',text:'text-red',icon:'candle',iconStyle:'pr-1 !block',textLength:'295px'},
+    'Political Profits': {name:'Political Profits',longname:'Political Profits',examples:'Lobbying, taxpayer burden, corruption.',color:'bg-blue',text:'text-blue',icon:'eye',iconStyle:'',textLength:'310px'},
     'Anti-Consumer Tactics': {name:'Anti-Consumer',longname:'Anti-Consumer Tactics',examples:'False claims, shrinkflation, market manipulation.',color:'bg-green',text:'text-green',icon:'asterix',iconStyle:'',textLength:'310px'},
 };

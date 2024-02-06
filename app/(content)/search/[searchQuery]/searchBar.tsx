@@ -11,7 +11,7 @@ import Link from 'next/link'
 export function SearchBar({searchQuery = "", prompt = "", icon = "search", styles = "", button = false, debug = true }: {searchQuery?: string, prompt?: string, icon?: string, styles?: string, button?:boolean, debug?: boolean }) {
     const router = useRouter();
 
-    const [searchInput, setSearchInput] = useState(searchQuery); 
+    const [searchInput, setSearchInput] = useState(decodeURIComponent(searchQuery)); 
     const [suggestions, setSuggestions] = useState([]); // suggestions
   
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -28,7 +28,7 @@ function renderHTMLString(str?:string): string | JSX.Element | JSX.Element[]  {
 
 
 export default function Page({ params }: { params: { pageNames:string[] } }) {
-    const [brandName, reportName] = [decodeURI(params.pageNames[0]), decodeURI(params.pageNames[1])];
+    const [brandName, reportName] = [decodeURIComponent(params.pageNames[0]), decodeURIComponent(params.pageNames[1])];
 
     return (
         <main className="relative flex flex-col w-full">

@@ -171,7 +171,7 @@ async function fetchPageHTMLString(pageName: string, forceRevalidate?:boolean): 
     try {
         const params = new URLSearchParams({ //API Get Params
             action: "parse",
-            page: pageName,
+            page: decodeURIComponent(pageName),
             prop: "text",
             format: "json",
             origin: '*'
@@ -205,7 +205,7 @@ async function fetchPageHTMLString(pageName: string, forceRevalidate?:boolean): 
     try {
         const params = new URLSearchParams({ //API Get Params
             action: "query",
-            titles: pageName,
+            titles: decodeURIComponent(pageName),
             prop: "extracts",
             format: "json",
             origin: '*',
@@ -253,7 +253,7 @@ export async function searchBrands(options: {query: string, resultCount: number,
         list: "search",
         srlimit: '' + (options.resultCount),
         sroffset: '' + (options.resultPage ? options.resultPage*options.resultCount : 0),
-        srsearch: options.query+' incategory:\"Brand\"',
+        srsearch: decodeURIComponent(options.query)+' incategory:\"Brand\"',
         format: "json",
         origin: "*"
     });
