@@ -32,6 +32,9 @@ export default async function SearchResults({ searchQuery, pageNumber = 0, resul
   async function SearchResultRow({brandName}:{brandName:string}){
     const brandData = await fetchBrandPage(brandName);
 
+    if (brandData.status == 'failed')
+      return '';
+
     return (
       <div className='h-52 overflow-y-hidden w-full relative'>
 
@@ -67,7 +70,7 @@ export const SEARCH_ITEM_STYLES = ' shrink-0 h-52 grow relative max-w-128 text-x
       <div className={SEARCH_ITEM_STYLES+' border-x-black border-x-6 border-b-black border-b-6 text-xl font-medium flex flex-col'}>
         <div className='relative h-full w-full flex justify-center items-center overflow-hidden bg-tan'>
           <div className='flex-item relative min-w-8 w-32 h-32 z-10'>
-            {brandData.logo ? <Image className='object-contain' fill={true} sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw" src={brandData.logo.url} alt={brandData.logo.alt ? brandData.logo.alt : ''} /> : ''}
+            {brandData.logo ? <Image className='object-contain' fill={true} sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw" src={brandData.logo.url} alt={brandData.title+' Logo'} /> : ''}
           </div>
           {brandData.coverImage ? <Image className='object-cover mix-blend-soft-light' src={brandData.coverImage.url} alt={brandData.coverImage.alt ? brandData.coverImage.alt : ''} fill={true} sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw"/> : ''}
         </div>

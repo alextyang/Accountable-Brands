@@ -37,7 +37,7 @@ export async function ProductIcons({styles="",names,excludeIndustry,pageName,col
         loadMissingIconData();
     }
 
-    const industryIcon = fuse.search(excludeIndustry)[0];
+    const industryIcon = fuse.search(excludeIndustry.substring(excludeIndustry.indexOf('>')+1, excludeIndustry.lastIndexOf('<')))[0];
     let productIconResults: IndustryIconList[] = [];
     let savedQueries: string[] = [];
     let madeChanges = false;
@@ -54,7 +54,7 @@ export async function ProductIcons({styles="",names,excludeIndustry,pageName,col
 
         let isProblematic = false;
 
-        while (iconResult[0] && (productIconResults.includes(iconResult[0].item) || industryIcon.item.name == iconResult[0].item.name) ) {
+        while (iconResult[0] && (productIconResults.includes(iconResult[0].item) || (industryIcon.item && industryIcon.item.name == iconResult[0].item.name)) ) {
             if (DEBUG) console.log('[IconSearch] Got duplicate for '+name+': '+iconResult[0].item.name+' - '+iconResult[0].score);
 
             if (productIconResults.includes(iconResult[0].item)) {
@@ -65,7 +65,7 @@ export async function ProductIcons({styles="",names,excludeIndustry,pageName,col
 
                 iconResult.shift();
             }
-            else if (industryIcon.item.name == iconResult[0].item.name) {
+            else if (industryIcon.item && industryIcon.item.name == iconResult[0].item.name) {
                 const index = productIconResults.indexOf(iconResult[0].item);
                 tempMissingIcons[key].overlaps?.push({overlapScore:iconResult[0].score,overlapName:industryIcon.item.name,overlapPath:industryIcon.item.path,overlapQuery:excludeIndustry,isIndustry:true});
                 tempMissingIcons[key].priority = (iconResult[0].score && tempMissingIcons[key].priority > iconResult[0].score ? iconResult[0].score : tempMissingIcons[key].priority);
@@ -129,9 +129,10 @@ export async function loadMissingIconData() {
 }
 
 export function IndustryIcon({styles="",name="",color="#07090F"}: {styles:string,name:string,color?:string}) {
-    const iconSearch = fuse.search(name);
-    if (DEBUG) console.log('[IconSearch] Searching for industry icon '+name+': ');
-    if (DEBUG) console.log(fuse.search(name));
+    var iconName = name.substring(name.indexOf('>')+1, name.lastIndexOf('<'));
+    const iconSearch = fuse.search(iconName);
+    if (DEBUG) console.log('[IconSearch] Searching for industry icon '+iconName+': ');
+    if (DEBUG) console.log(fuse.search(iconName));
     const iconSearchResult = iconSearch[0] ? iconSearch[0].item.path : 'default';
 
     return (

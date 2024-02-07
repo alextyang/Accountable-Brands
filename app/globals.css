@@ -340,7 +340,7 @@ div.skeleton-wrap {
     /* font-size: 11px; */
     line-height: 12px;
     /* color: var(--background-rgb); */
-    color: #BF211E;
+    /* color: #BF211E; */
     position: absolute;
     /* top:0.75px; */
     left:15px;
@@ -379,25 +379,3 @@ div.skeleton-wrap {
     overflow:hidden;
     margin-top:0;
   }
-  
-  /* Limit paragraphs class number */
-  .wikipedia-excerpt.num-paragraphs-1 p:nth-of-type(n+2) { display:none; }
-  .wikipedia-excerpt.num-paragraphs-2 p:nth-of-type(n+3) { display:none; }
-  .wikipedia-excerpt.num-paragraphs-3 p:nth-of-type(n+4) { display:none; }
-  .wikipedia-excerpt.num-paragraphs-4 p:nth-of-type(n+5) { display:none; }
-  .wikipedia-excerpt.num-paragraphs-5 p:nth-of-type(n+6) { display:none; }
-  .wikipedia-excerpt.num-paragraphs-6 p:nth-of-type(n+7) { display:none; }
-  .wikipedia-excerpt.num-paragraphs-7 p:nth-of-type(n+8) { display:none; }
-  .wikipedia-excerpt.num-paragraphs-8 p:nth-of-type(n+9) { display:none; }
-  .wikipedia-excerpt.num-paragraphs-9 p:nth-of-type(n+10) { display:none; }
-  .wikipedia-excerpt.num-paragraphs-10 p:nth-of-type(n+11) { display:none; }
-  .wikipedia-excerpt.num-paragraphs-11 p:nth-of-type(n+12) { display:none; }
-  .wikipedia-excerpt.num-paragraphs-12 p:nth-of-type(n+13) { display:none; }
-  .wikipedia-excerpt.num-paragraphs-13 p:nth-of-type(n+14) { display:none; }
-  .wikipedia-excerpt.num-paragraphs-14 p:nth-of-type(n+15) { display:none; }
-  .wikipedia-excerpt.num-paragraphs-15 p:nth-of-type(n+16) { display:none; }
-  .wikipedia-excerpt.num-paragraphs-16 p:nth-of-type(n+17) { display:none; }
-  .wikipedia-excerpt.num-paragraphs-17 p:nth-of-type(n+18) { display:none; }
-  .wikipedia-excerpt.num-paragraphs-18 p:nth-of-type(n+19) { display:none; }
-  .wikipedia-excerpt.num-paragraphs-19 p:nth-of-type(n+20) { display:none; }
-  .wikipedia-excerpt.num-paragraphs-20 p:nth-of-type(n+21) { display:none; }

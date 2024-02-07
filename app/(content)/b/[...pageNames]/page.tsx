@@ -6,13 +6,12 @@ import { fetchBrandPage, fetchReportPages } from '@/app/lib/mediawiki'
 import parseHTML from 'html-react-parser';
 import { JSDOM } from 'jsdom';
 import DOMPurify from 'dompurify';
-import NavBar from '../../navBar';
 import ActionMenu from './actionMenu';
 import { IndustryIcon, ProductIcons } from '@/app/lib/icons/dynamicIcons';
 import { ReportGrid } from './reportGrid';
 import Link from 'next/link';
 import { Icon } from '@/app/lib/icons/ui-icons';
-import { BrandPage, MW_URL } from '@/app/lib/definitions';
+import { BrandPage, MW_URL, ReportPage } from '@/app/lib/definitions';
 import { ErrorBoundary } from 'next/dist/client/components/error-boundary';
 import  BrandPageError, { ReportPageError } from './error';
 import { Suspense } from 'react';
@@ -44,6 +43,9 @@ export default function Page({ params }: { params: { pageNames:string[] } }) {
 async function BrandPage({brandName}:{brandName:string}) {
     const brandData = await fetchBrandPage(brandName, false);
 
+    if (brandData.status == 'failed')
+      throw new Error('Failed to fetch brand\'s page.');
+
     return (
         <div className='relative flex flex-col items-center w-full'>
             <BrandSummary brandData={brandData} />
@@ -65,7 +67,14 @@ async function BrandPage({brandName}:{brandName:string}) {
 async function ReportsPage({brandData}:{brandData:BrandPage}) {
     if (!brandData.reportNames || brandData.reportNames.length < 1) 
         return (<NoReportsFound brandName={brandData.title}/>);
-    const reports = await fetchReportPages(brandData.reportNames, false);
+
+    const rawReports = await fetchReportPages(brandData.reportNames, false);
+    var reports: ReportPage[] = []; 
+    rawReports.map(report => { 
+        if (report.status == 'success')
+            reports.push(report);
+    });
+
     if (!reports || reports.length < 1) 
         return (<NoReportsFound brandName={brandData.title}/>);
 
@@ -97,8 +106,8 @@ async function BrandSummary({brandData}:{brandData:BrandPage}) {
                 <div className='flex flex-col w-full items-center'> {/* Brand Section */}
                     <div className='flex flex-row flex-nowrap w-full justify-end'> {/* Logo & Infocard & Products */}
                         <div className='m-6 min-w-32 min-h-32 max-w-lg w-1/5 flex flex-col justify-center items-center'>
-                            <div className='w-full max-h-40 h-full relative'> {/* Logo */}
-                                {brandData.logo ? <Image className='object-contain' fill={true} sizes="33vw" src={brandData.logo.url} alt={brandData.logo.alt ? brandData.logo.alt : ''} /> : ''}
+                            <div className='max-h-40 relative lg:w-3/4 lg:h-3/4 w-full h-full'> {/* Logo */}
+                                {brandData.logo ? <Image className='object-contain' fill={true} sizes="33vw" src={brandData.logo.url} alt={brandData.title + ' Logo'} /> : ''}
                             </div>
                         </div>
                         <div className='relative grow flex flex-col justify-start items-end'> {/* Infocard & Products */}
@@ -115,7 +124,12 @@ async function BrandSummary({brandData}:{brandData:BrandPage}) {
                                 </div>
                                 <div className='grow justify-self-end self-end flex flex-col justify-end items-end text-right pt-0.5 pr-2.5 '> {/* Ownership Structure */}
                                     <div className=' sm:text-2xl text-xl font-medium sm:mb-0.5 mb-1.5'> {/* Owner */}
-                                        <span className=' opacity-60'>{renderHTMLString(brandData.owner?.substring(0, brandData.owner.lastIndexOf(' ➔ ')+2))}</span><span className=''>{' ☂ '+renderHTMLString(brandData.owner?.substring(brandData.owner.lastIndexOf(' ➔ ')+3))}</span>
+                                        <span className=' opacity-60'>
+                                            {brandData.owner?.indexOf(' ➔ ') != -1 ? renderHTMLString(brandData.owner?.substring( 0, brandData.owner.lastIndexOf(' ➔ ') + 2 )) : ''}
+                                        </span>
+                                        <span className=''>
+                                            {brandData.owner?.length && brandData.owner?.length > 0 ?  ' ☂ ' + renderHTMLString(brandData.owner?.substring( brandData.owner.lastIndexOf(' ➔ ') + 3 )) : ''}
+                                        </span>
                                     </div>
                                     <div className='pl-12 sm:text-base text-base tracking-wide'> {/* Brands */}
                                         <div className='text-pretty'>{renderHTMLString(brandData.brands)}</div>

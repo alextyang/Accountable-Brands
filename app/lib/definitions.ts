@@ -30,7 +30,6 @@ export type BrandPage = { // Structure of parsed Company/Organization page
     title: string,
     logo?: {
         url: string,
-        alt?: string
     },
     coverImage?: {
         url: string,

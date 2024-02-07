@@ -11,7 +11,7 @@ function renderHTMLString(str?:string): string | JSX.Element | JSX.Element[]  {
     return parseHTML(purifyHTML.sanitize(str ? str : ''));
 }
 
-import { B_URL, BrandPage, DEBUG, MW_URL, ReportPage, SIMULATE_LAG, REVALIDATE_INTERVAL } from './definitions'
+import { B_URL, BrandPage, DEBUG, MW_URL, ReportPage, SIMULATE_LAG, REVALIDATE_INTERVAL, REPORT_TYPES } from './definitions'
 
 
 
@@ -24,13 +24,15 @@ type HTMLStringLocation = { // Utility type for parsing MediaWiki pages
 const WIKI_HTML_MAP = { // Basic page information spots
     ID: {startToken: "<!-- dbpageid: ", endToken: "bpid--> "},
     TITLE: {startToken: "<!-- dbpagetitle: ", endToken: "bpt--> "},
-    DATATABLE: {startToken: "<table class=\"mw-capiunto-infobox\"", endToken: "</table>"},
 };
 
 
 
 
 const BRAND_HTML_MAP = { // Company/Organization page HTML structure
+    DATATABLE: {startToken: "<table class=\"mw-capiunto-infobox brand-page-infobox\"",    
+                endToken: "</table>"},
+
     LOGO_URL:{  startToken: "class=\"mw-file-description\"><img src=\"", 
                 endToken: "\" decoding=\"async\""},
 
@@ -63,10 +65,13 @@ export async function fetchBrandPages(pageNames: string[]): Promise<BrandPage[]>
 }
 
 export async function fetchBrandPage(pageName: string, revalidate?:boolean): Promise<BrandPage> {
+    var status = 'success';
     const pageResponse = await fetchPageHTMLString(pageName, revalidate);
+    if (pageResponse == 'failed')
+        status = pageResponse;
 
-    const datatableHTMLString = locateParam(pageResponse, WIKI_HTML_MAP.DATATABLE); // Separate data
-    // if (DEBUG) {console.log('[MediaWiki] Recieved string: ');  console.log({pageResponse}); }
+    const datatableHTMLString = locateParam(pageResponse, BRAND_HTML_MAP.DATATABLE); // Separate data
+    if (DEBUG) {console.log('[MediaWiki] Recieved string: ');  console.log({pageResponse}); }
     const logoUrl = locateParam(datatableHTMLString, BRAND_HTML_MAP.LOGO_URL);
     const coverUrl = locateParam(datatableHTMLString, BRAND_HTML_MAP.COVER_URL);
 
@@ -75,11 +80,10 @@ export async function fetchBrandPage(pageName: string, revalidate?:boolean): Pro
         id: Number( locateParam(pageResponse, WIKI_HTML_MAP.ID) ),
         title: locateParam(pageResponse, WIKI_HTML_MAP.TITLE),
         logo: {
-            url: logoUrl.includes('://') ? logoUrl : MW_URL + logoUrl,
-            alt: undefined
+            url: logoUrl.length > 0 ? (logoUrl.includes('://') ? logoUrl : MW_URL + logoUrl) : '',
         },
         coverImage: {
-            url: coverUrl.includes('://') ? coverUrl : MW_URL + coverUrl,
+            url: coverUrl.length > 0 ? (coverUrl.includes('://') ? coverUrl : MW_URL + coverUrl) : '',
             alt: undefined
         },
         owner: adoptLinks(locateParam(datatableHTMLString, BRAND_HTML_MAP.OWNER)),
@@ -93,13 +97,15 @@ export async function fetchBrandPage(pageName: string, revalidate?:boolean): Pro
         } ).splice(1),
     };
 
-    // if (DEBUG) { console.log('[MediaWiki] Interpreted page data: '); console.log(pageData); }
+    if (DEBUG) { console.log('[MediaWiki] Interpreted page data: '); console.log(pageData); }
     return pageData;
 }
 
 
 
 const REPORT_HTML_MAP = { // MediaWiki report page HTML structure
+    DATATABLE: {startToken: "<table class=\"mw-capiunto-infobox report-page-infobox\"",    
+                endToken: "</table>"},
     TYPE:{  startToken: "class=\"report-md-type-div\">", 
                 endToken: "</td></tr><tr><th scope=\"row\" class=\"mw-capiunto-infobox-label\">Date(s)"},
     TIMEFRAME:{  startToken: "class=\"brand-md-timeframe-div\">\n", 
@@ -120,19 +126,26 @@ export async function fetchReportPages(pageNames: string[], revalidate?: boolean
 
     const reportPageDatas: ReportPage[] = pageResponses.map(
         (pageResponse, index): ReportPage => {
-            const dataResponse = locateParam(pageResponse, WIKI_HTML_MAP.DATATABLE);
+            var status = 'success';
+            const dataResponse = locateParam(pageResponse, REPORT_HTML_MAP.DATATABLE);
+            const type = locateParam(dataResponse, REPORT_HTML_MAP.TYPE);
+            if (pageResponse == 'failed') 
+                status = pageResponse;
+            else if (!Object.keys(REPORT_TYPES).includes(type)) 
+                status = 'malformed';
             return {
-                status: 'success',
+                status: status,
                 id: Number(locateParam(pageResponse, WIKI_HTML_MAP.ID)),
                 title: locateParam(pageResponse, WIKI_HTML_MAP.TITLE),
-                type: locateParam(dataResponse, REPORT_HTML_MAP.TYPE),
+                type: type,
                 timeframe: locateParam(dataResponse, REPORT_HTML_MAP.TIMEFRAME),
                 preview: pagePreviewResponses[index],
                 content: renderHTMLString(recontextualizeLinks(locateParam(pageResponse, REPORT_HTML_MAP.CONTENT))),
             };
         }
     );
-    if (DEBUG) { console.log('[MediaWiki] Interpreted reports as: '); reportPageDatas.map(item => console.log(item)); }
+    // if (DEBUG) { console.log('[MediaWiki] Interpreted reports as: '); reportPageDatas.map(item => console.log(item)); }
+    
     
 
     return reportPageDatas;
@@ -143,6 +156,10 @@ function locateParam(htmlString: string, paramLoc: HTMLStringLocation): string {
     const afterStr = htmlString.substring(
         (paramLoc.lastOccurance ? htmlString.lastIndexOf(paramLoc.startToken) : htmlString.indexOf(paramLoc.startToken))
             + paramLoc.startToken.length);
+
+    if (htmlString.indexOf(paramLoc.startToken) == -1 || afterStr.indexOf(paramLoc.endToken) == -1)
+        return '';
+
     return  afterStr.substring( 0,
                 afterStr.indexOf(paramLoc.endToken)
             ).trim();
@@ -176,18 +193,19 @@ async function fetchPageHTMLString(pageName: string, forceRevalidate?:boolean): 
             format: "json",
             origin: '*'
         });
-        if (DEBUG) console.log('[MediaWiki] Fetching page data for \''+pageName+'\' - '+`${MW_URL}/w/api.php?${params}`);
+        // if (DEBUG) console.log('[MediaWiki] Fetching page data for \''+pageName+'\' - '+`${MW_URL}/w/api.php?${params}`);
         const data = await delayFetch(`${MW_URL}/w/api.php?${params}`, { next: {revalidate: forceRevalidate ? 0 : REVALIDATE_INTERVAL} })
             .then(function(response){
                 return response.json() as Promise<MWPageResponse>})
         // console.log('[MediaWiki] Page fetch completed.');
-        if (DEBUG) console.log('[MediaWiki] Found page HTML: ',data.parse.text['*']);
+        // if (DEBUG) console.log('[MediaWiki] Found page HTML: ',data.parse.text['*']);
    
         return WIKI_HTML_MAP.ID.startToken + data.parse.pageid + WIKI_HTML_MAP.ID.endToken + WIKI_HTML_MAP.TITLE.startToken + data.parse.title + WIKI_HTML_MAP.TITLE.endToken + data.parse.text['*']; // embed received metadata in page HTML
 
     } catch (error) { //TODO: handle errors
         console.error('[MediaWiki] Fetch Error: ', error);
-        throw new Error('[MediaWiki] Failed to load page: '+pageName);
+        console.error('[MediaWiki] Failed to load page: '+pageName);
+        return 'failed';
     }
   }
 
@@ -222,10 +240,10 @@ async function fetchPageHTMLString(pageName: string, forceRevalidate?:boolean): 
 
     } catch (error) { //TODO: handle errors
         console.error('[MediaWiki] Fetch Error: ', error);
-        throw new Error('[MediaWiki] Failed to load page: '+pageName);
+        console.error('[MediaWiki] Failed to load page: '+pageName);
+        return '';
     }
   }
-
 
 
   function recontextualizeLinks(htmlString: string ): string { // fixes mediawiki-specific links
@@ -277,4 +295,15 @@ export async function searchBrands(options: {query: string, resultCount: number,
         throw new Error('[MediaWiki] Failed to perform search: '+`${MW_URL}/w/api.php?${params}`);
     }
 
+}
+
+
+const isValidUrl = (urlString:string) => {
+    var urlPattern = new RegExp('^(https?:\\/\\/)?'+ // validate protocol
+  '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // validate domain name
+  '((\\d{1,3}\\.){3}\\d{1,3}))'+ // validate OR ip (v4) address
+  '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // validate port and path
+  '(\\?[;&a-z\\d%_.~+=-]*)?'+ // validate query string
+  '(\\#[-a-z\\d_]*)?$','i'); // validate fragment locator
+return !!urlPattern.test(urlString);
 }

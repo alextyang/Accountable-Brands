@@ -9,11 +9,14 @@ import ClickOutside from '../lib/utils/ClickOutside';
 import Link from 'next/link';
 import { MW_URL } from '../lib/definitions';
 import { useParams, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 
 export default function NavBar() {
     const params = useParams<{ searchQuery: string }>();
     const path = usePathname();
+    const router = useRouter();
+
     
     const menuButtonRef = useRef<HTMLDivElement>(null);
     const [isMenuOpen, setIsMenuOpen] = useState(false); 
