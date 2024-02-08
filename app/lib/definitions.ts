@@ -9,7 +9,7 @@ export const INSTAGRAM_LINK = '';
 export const TWITTER_LINK = '';
 export const PATREON_LINK = '';
 
-export const DEBUG = true;
+export const DEBUG = false;
 
 export const REVALIDATE_INTERVAL = 0;
 export const SIMULATE_LAG = 0;

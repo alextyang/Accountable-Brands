@@ -36,9 +36,7 @@ const fuse = new Fuse(industryIcons, fuseOptions);
 export async function ProductIcons({styles="",names,excludeIndustryRaw,pageName,color="#07090F"}: {styles:string,names:string[],excludeIndustryRaw:string,pageName:string,color?:string}): Promise<React.JSX.Element[]> {
     if (DEBUG) console.log('[IconSearch] Searching for product icons '+names+': ');
 
-    if (Object.keys(missingIcons).length == 0) {
-        loadMissingIconData();
-    }
+    missingIcons = await loadMissingIconData();
 
     const excludeIndustry = excludeIndustryRaw.substring(excludeIndustryRaw.indexOf('>')+1, excludeIndustryRaw.lastIndexOf('<'));
     const industryIcon = fuse.search(excludeIndustry.replaceAll(' ', '|'))[0];
