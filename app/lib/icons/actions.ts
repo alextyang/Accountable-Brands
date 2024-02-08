@@ -4,8 +4,8 @@ import { LOW_SCORE_CUTOFF, missingIcons, saveMissingIconData } from "@/app/lib/i
 
 
 export async function ignoreMissingIconForQuery(key:string) {
-    console.log('Marking '+key+' to ignore.')
     if (!missingIcons[key]) return;
     missingIcons[key].ignoreScore = missingIcons[key].priority;
+    console.log('Marking '+key+' to ignore.', missingIcons[key])
     saveMissingIconData(missingIcons);
 }

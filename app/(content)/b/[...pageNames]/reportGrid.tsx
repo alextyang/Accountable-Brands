@@ -204,7 +204,7 @@ function AnimatedReportModal({duration, state, report, setOpenReport, modalOrigi
                                 entered:{marginLeft:'0', height:REPORT_TYPES[report.type].textLength},
                                 exiting:{}, 
                                 unmounted:{}
-                            }[state]}} className={"z-30 overflow-y-hidden relative ml-32 w-14 h-14 p-1 "+REPORT_TYPES[report.type].color}> {/* Type Icon & Labels */}
+                            }[state]}} className={"z-30 overflow-y-hidden relative ml-32 w-14 h-14 p-1 overflow-visible "+REPORT_TYPES[report.type].color}> {/* Type Icon & Labels */}
                                 <Icon styles={REPORT_TYPES[report.type].iconStyle + ' !block '} name={REPORT_TYPES[report.type].icon} color="#D8C1AC" />
                                 <div style={{transition: `right 300ms ease-in 0ms, opacity 300ms ease-in 0ms`, ...{
                                 entering:{},
@@ -216,9 +216,9 @@ function AnimatedReportModal({duration, state, report, setOpenReport, modalOrigi
                                     <p className="text-sm whitespace-nowrap font-medium  ">{report.timeframe}</p>
                                     <p className={"text-sm whitespace-nowrap font-medium -mt-1 "+REPORT_TYPES[report.type].text}>{REPORT_TYPES[report.type].name}</p>
                                 </div>
-                                <p style={{left:'-78.4px',top:'150px'}} className={"text-3xl whitespace-nowrap font-semibold rotate-90 absolute text-tan "}>{REPORT_TYPES[report.type].name}</p>
+                                <p style={REPORT_TYPES[report.type].textPosition} className={"text-3xl whitespace-nowrap font-semibold rotate-90 absolute text-tan "}>{REPORT_TYPES[report.type].name}</p>
                             </div> 
-                            <ActionMenu pageName={report.title} />
+                            <ActionMenu pageName={report.title} pageUrlName={encodeURIComponent(report.title)} />
                         </div> 
 
                         {/* Small->Large Title  */}
@@ -245,7 +245,7 @@ function AnimatedReportModal({duration, state, report, setOpenReport, modalOrigi
                             entered:{clipPath:'rect(0 100% 100% 0)'},
                             exiting:{}, 
                             unmounted:{}
-                        }[state]}} className="z-40 right-0 absolute bg-black left-3 flex overflow-hidden">
+                        }[state]}} className="z-40 right-0  pb-1 absolute bg-black left-3 flex overflow-hidden">
                             <p className="h-min -mt-0 w-full text-tan p-1 pl-2 text-4xl font-medium tracking-tight text-balance">{report.title.substring(report.title.indexOf('/')+1)}</p>
                         </div> 
                         
@@ -270,7 +270,7 @@ function AnimatedReportModal({duration, state, report, setOpenReport, modalOrigi
                             entered:{opacity:'100%'},
                             exiting:{}, 
                             unmounted:{}
-                        }[state]}} className="report-content text-base m-2.5 mt-1 mr-3 ">
+                        }[state]}} className="report-content text-base m-2.5 mt-1 mr-16 ">
                             {/* Dates Subheader  */}
                             <div className="text-base whitespace-nowrap font-semibold -mb-5  ">
                                 {report.timeframe}
@@ -299,7 +299,7 @@ function StaticReportModal({report, setOpenReport}:{report:ReportPage|undefined,
 
                        
                         <div className="flex flex-col float-right">
-                            <div style={{marginLeft:'0', height:REPORT_TYPES[report.type].textLength}} className={"z-30 overflow-y-hidden relative ml-32 w-14 h-14 p-1 "+REPORT_TYPES[report.type].color}> {/* Type Icon & Labels */}
+                            <div style={{marginLeft:'0', height:REPORT_TYPES[report.type].textLength}} className={"z-30 overflow-y-hidden relative ml-32 w-14 h-14 p-1 overflow-visible "+REPORT_TYPES[report.type].color}> {/* Type Icon & Labels */}
                                 <Icon styles={REPORT_TYPES[report.type].iconStyle + ' !block '} name={REPORT_TYPES[report.type].icon} color="#D8C1AC" />
                                 <div style={{right:'0',opacity:'0'}} className="absolute z-20 right-16 top-0 text-right opacity-100 "> {/* Date & Type Label */}
                                     <p className="text-sm whitespace-nowrap font-medium  ">{report.timeframe}</p>
@@ -307,11 +307,11 @@ function StaticReportModal({report, setOpenReport}:{report:ReportPage|undefined,
                                 </div>
                                 <p style={{left:'-78.4px',top:'150px'}} className={"text-3xl whitespace-nowrap font-semibold rotate-90 absolute text-tan "}>{REPORT_TYPES[report.type].name}</p>
                             </div> 
-                            <ActionMenu pageName={report.title} />
+                            <ActionMenu pageName={report.title} pageUrlName={encodeURIComponent(report.title)} />
                         </div> 
 
                         {/* White->Black Title  */}
-                        <div style={{top:'10.5px', marginRight:'4.7rem', lineHeight:'2.625rem',clipPath:'rect(0 100% 100% 0)'}} className="z-40 right-0 absolute bg-black left-3 flex overflow-hidden">
+                        <div style={{top:'10.5px', marginRight:'4.7rem', lineHeight:'2.625rem',clipPath:'rect(0 100% 100% 0)'}} className="z-40 right-0 absolute bg-black left-3 flex pb-1 overflow-hidden">
                             <p className="h-min -mt-0 w-full text-tan p-1 pl-2 text-4xl font-medium tracking-tight text-balance">{report.title.substring(report.title.indexOf('/')+1)}</p>
                         </div> 
                         
@@ -324,7 +324,7 @@ function StaticReportModal({report, setOpenReport}:{report:ReportPage|undefined,
                         <p style={{opacity:'0%', maxHeight:'0%'}} className="text-base absolute mt-1 ml-0.5 mr-20 max-h-full line-clamp-4 sm:line-clamp-3 md:line-clamp-4 xl:line-clamp-5">{report.preview}</p>
 
                         {/* Fading in Content  */}
-                        <div style={{opacity:'100%'}} className="report-content text-base m-2.5 mt-1 mr-3 ">
+                        <div style={{opacity:'100%'}} className="report-content text-base m-2.5 mt-1 mr-16 ">
                             {/* Dates Subheader  */}
                             <div className="text-base whitespace-nowrap font-semibold -mb-5  ">
                                 {report.timeframe}

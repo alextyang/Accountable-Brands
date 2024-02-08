@@ -138,7 +138,7 @@ async function BrandSummary({brandData}:{brandData:BrandPage}) {
                             </div>
                             <div className='flex flex-row items-start w-full py-3.5 px-4'> {/* Products */}
                                 <div className='flex flex-row justify-start  justify-self-start -ml-1'> {/* Icons */}
-                                    <ProductIcons styles='h-7 w-7 sm:h-8 sm:w-8 mr-0.5 mb-1.5 -pt-0.5' pageName={brandData.name} excludeIndustry={brandData.industry ? brandData.industry : 'default'} names={brandData.products ? brandData.products.split('  •  ') : []} />
+                                    <ProductIcons styles='h-7 w-7 sm:h-8 sm:w-8 mr-0.5 mb-1.5 -pt-0.5' pageName={brandData.name} excludeIndustryRaw={brandData.industry ? brandData.industry : 'default'} names={brandData.products ? brandData.products.split(' • ') : []} />
                                 </div>
                                 <div className='text-right grow justify-self-end pl-4 sm:text-base font-medium text-base tracking-normal '> {/* Brands */}
                                         <div className='text-balance pr-2.5 sm:-mt-1'>{renderHTMLString(brandData.products)}</div>

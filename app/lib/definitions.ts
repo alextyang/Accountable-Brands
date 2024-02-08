@@ -9,7 +9,7 @@ export const INSTAGRAM_LINK = '';
 export const TWITTER_LINK = '';
 export const PATREON_LINK = '';
 
-export const DEBUG = false;
+export const DEBUG = true;
 
 export const REVALIDATE_INTERVAL = 0;
 export const SIMULATE_LAG = 0;
@@ -55,8 +55,8 @@ export type ReportPage = { // Structure of parsed report page
     content: string | JSX.Element | JSX.Element[]
 }
 
-export const REPORT_TYPES: {[key:string]:{name:string,longname:string,examples:string,color:string,text:string,icon:string,iconStyle:string,textLength:string}} = {
-    'Human Rights Abuse': {name:'Human Rights',longname:'Human Rights Abuse',examples:'In responsibility or participation.',color:'bg-red',text:'text-red',icon:'candle',iconStyle:'pr-1 !block',textLength:'295px'},
-    'Political Profits': {name:'Political Profits',longname:'Political Profits',examples:'Lobbying, taxpayer burden, corruption.',color:'bg-blue',text:'text-blue',icon:'eye',iconStyle:'',textLength:'310px'},
-    'Anti-Consumer Tactics': {name:'Anti-Consumer',longname:'Anti-Consumer Tactics',examples:'False claims, shrinkflation, market manipulation.',color:'bg-green',text:'text-green',icon:'asterix',iconStyle:'',textLength:'310px'},
+export const REPORT_TYPES: {[key:string]:{name:string,longname:string,examples:string,color:string,text:string,icon:string,iconStyle:string,textLength:string,textPosition:{left:string,top:string}}} = {
+    'Human Rights Abuse': {name:'Human Rights',longname:'Human Rights Abuse',examples:'In responsibility or participation.',color:'bg-red',text:'text-red',icon:'candle',iconStyle:'pr-1 !block',textLength:'295px',textPosition:{left:'-78.4px',top:'150px'}},
+    'Political Profits': {name:'Political Profits',longname:'Political Profits',examples:'Lobbying, taxpayer burden, corruption.',color:'bg-blue',text:'text-blue',icon:'eye',iconStyle:'',textLength:'310px',textPosition:{left:'-92.4px',top:'155.5px'}},
+    'Anti-Consumer Tactics': {name:'Anti-Consumer',longname:'Anti-Consumer Tactics',examples:'False claims, shrinkflation, market manipulation.',color:'bg-green',text:'text-green',icon:'asterix',iconStyle:'',textLength:'310px',textPosition:{left:'-78.4px',top:'150px'}},
 };

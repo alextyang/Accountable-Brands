@@ -7,7 +7,7 @@ export default async function Page() {
     const keysArray = Object.keys(missingIcons).sort(function(first,second) {
         return (missingIcons[second].priority - missingIcons[second].ignoreScore) - (missingIcons[first].priority - missingIcons[first].ignoreScore);
     });
-
+    
     return (<div className="flex flex-col p-12 gap-10">
         {
             keysArray.map(function(key, index) {

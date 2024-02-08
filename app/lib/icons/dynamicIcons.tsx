@@ -17,33 +17,37 @@ export var missingIcons: MissingIcons = {};
 // loadMissingIconData();
 
 
-export const LOW_SCORE_CUTOFF = 0.9;
-export const HIGH_SCORE_CUTOFF = 0.35;
+export const LOW_SCORE_CUTOFF = 0.3;
+export const HIGH_SCORE_CUTOFF = 0.1;
 
 
 const fuseOptions = {
     shouldSort: true,
     includeScore: true,
+    ignoreLocation: true,
+    ignoreFieldNorm: true,
+    useExtendedSearch: true,
     keys: [
         'name'
     ]
 };
 const fuse = new Fuse(industryIcons, fuseOptions);
 
-export async function ProductIcons({styles="",names,excludeIndustry,pageName,color="#07090F"}: {styles:string,names:string[],excludeIndustry:string,pageName:string,color?:string}): Promise<React.JSX.Element[]> {
+export async function ProductIcons({styles="",names,excludeIndustryRaw,pageName,color="#07090F"}: {styles:string,names:string[],excludeIndustryRaw:string,pageName:string,color?:string}): Promise<React.JSX.Element[]> {
     if (DEBUG) console.log('[IconSearch] Searching for product icons '+names+': ');
 
     if (Object.keys(missingIcons).length == 0) {
         loadMissingIconData();
     }
 
-    const industryIcon = fuse.search(excludeIndustry.substring(excludeIndustry.indexOf('>')+1, excludeIndustry.lastIndexOf('<')))[0];
+    const excludeIndustry = excludeIndustryRaw.substring(excludeIndustryRaw.indexOf('>')+1, excludeIndustryRaw.lastIndexOf('<'));
+    const industryIcon = fuse.search(excludeIndustry.replaceAll(' ', '|'))[0];
     let productIconResults: IndustryIconList[] = [];
     let savedQueries: string[] = [];
     let madeChanges = false;
 
     names.map(name => {
-        let iconResult = fuse.search(name);
+        let iconResult = fuse.search(name.replaceAll(' ', '|'));
         const key = name;
 
         const isNewSearch = !missingIcons[key] || missingIcons[key].age > 100;
@@ -54,7 +58,7 @@ export async function ProductIcons({styles="",names,excludeIndustry,pageName,col
 
         let isProblematic = false;
 
-        while (iconResult[0] && (productIconResults.includes(iconResult[0].item) || (industryIcon.item && industryIcon.item.name == iconResult[0].item.name)) ) {
+        while (iconResult[0] && (productIconResults.includes(iconResult[0].item) || (industryIcon && industryIcon.item && industryIcon.item.name == iconResult[0].item.name)) ) {
             if (DEBUG) console.log('[IconSearch] Got duplicate for '+name+': '+iconResult[0].item.name+' - '+iconResult[0].score);
 
             if (productIconResults.includes(iconResult[0].item)) {
@@ -130,9 +134,9 @@ export async function loadMissingIconData() {
 
 export function IndustryIcon({styles="",name="",color="#07090F"}: {styles:string,name:string,color?:string}) {
     var iconName = name.substring(name.indexOf('>')+1, name.lastIndexOf('<'));
-    const iconSearch = fuse.search(iconName);
+    const iconSearch = fuse.search(iconName.replaceAll(' ', '|'));
     if (DEBUG) console.log('[IconSearch] Searching for industry icon '+iconName+': ');
-    if (DEBUG) console.log(fuse.search(iconName));
+    if (DEBUG) console.log(fuse.search(iconName.replaceAll(' ', '|')));
     const iconSearchResult = iconSearch[0] ? iconSearch[0].item.path : 'default';
 
     return (

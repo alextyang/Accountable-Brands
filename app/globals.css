@@ -78,7 +78,7 @@ body:has(.report-content) {
 
 .report-container:has(.report-content) {
   overflow-y: scroll;
-  overflow-x: visible;
+  overflow-x: hidden;
 }
 
 .report-content figure {
