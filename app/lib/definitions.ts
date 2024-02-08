@@ -2,7 +2,7 @@
 export const MW_URL = "https://collab.accountablebrand.org"; // Location of MediaWiki Instance
 export const ADD_BRAND_URL = MW_URL+"/wiki/";
 export const ADD_REPORT_URL = MW_URL+"/wiki/";
-export const B_URL = "http://localhost:3000"; // Location of NextJs Instance
+export const B_URL = process.env.NODE_ENV == "development" ? "http://localhost:3000" : "https://accountablebrand.org"; // Location of NextJs Instance
 
 export const FACEBOOK_LINK = '';
 export const INSTAGRAM_LINK = '';
