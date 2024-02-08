@@ -130,6 +130,7 @@ export function saveMissingIconData(missingIcons:MissingIcons) {
 
 export async function loadMissingIconData() {
     missingIcons = JSON.parse(await fs.readFile('./app/lib/icons/missingIcons.json', { encoding: 'utf8' }));
+    return missingIcons;
 }
 
 export function IndustryIcon({styles="",name="",color="#07090F"}: {styles:string,name:string,color?:string}) {

@@ -1,9 +1,10 @@
 "use server";
 
-import { LOW_SCORE_CUTOFF, missingIcons, saveMissingIconData } from "@/app/lib/icons/dynamicIcons";
+import { LOW_SCORE_CUTOFF, loadMissingIconData, saveMissingIconData } from "@/app/lib/icons/dynamicIcons";
 import { IgnoreButton } from "./iconMenu";
 
 export default async function Page() {
+    var missingIcons = await loadMissingIconData();
     const keysArray = Object.keys(missingIcons).sort(function(first,second) {
         return (missingIcons[second].priority - missingIcons[second].ignoreScore) - (missingIcons[first].priority - missingIcons[first].ignoreScore);
     });
@@ -80,7 +81,7 @@ function IconWidget({name, path, score, query, original}:{name?:string,path?:str
         <div className="flex flex-col items-center">
             <p className="text-sm font-medium h-5 opacity-60">{query ? 'Already used \''+query+'\'' : original}</p>
             <div className="flex flex-row">
-                <svg className={query ? 'opacity-75' : ''} xmlns="http://www.w3.org/2000/svg" height='48' width='48' viewBox="0 -960 960 960"><path d={path} fill="#07090F"/></svg>
+                <svg className={query ? '' : ''} xmlns="http://www.w3.org/2000/svg" height='48' width='48' viewBox="0 -960 960 960"><path d={path} fill="#07090F"/></svg>
                 <div className='p-1 pl-1.5'>
                     <p className="text-xs">{'\''+name+'\''}</p>
                     <div className="flex flex-row gap-0.5 mt-1">
