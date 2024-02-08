@@ -38,7 +38,7 @@ export default async function SearchResults({ searchQuery, pageNumber = 0, resul
     return (
       <div className='h-52 overflow-y-hidden w-full relative'>
 
-          <Link href={"/b/"+brandData.title} className='z-20 opacity-0 hover:opacity-100 flex absolute left-0 top-0 right-0 bottom-1.5 items-center justify-center'>
+          <Link href={"/b/"+brandData.url_name} className='z-20 opacity-0 hover:opacity-100 flex absolute left-0 top-0 right-0 bottom-1.5 items-center justify-center'>
             <div className=' w-64'> </div>
             <div className=' flex-grow flex justify-center items-center'> 
               <div className=' relative flex flex-row items-center justify-center'>
@@ -70,13 +70,13 @@ export const SEARCH_ITEM_STYLES = ' shrink-0 h-52 grow relative max-w-128 text-x
       <div className={SEARCH_ITEM_STYLES+' border-x-black border-x-6 border-b-black border-b-6 text-xl font-medium flex flex-col'}>
         <div className='relative h-full w-full flex justify-center items-center overflow-hidden bg-tan'>
           <div className='flex-item relative min-w-8 w-32 h-32 z-10'>
-            {brandData.logo ? <Image className='object-contain' fill={true} sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw" src={brandData.logo.url} alt={brandData.title+' Logo'} /> : ''}
+            {brandData.logo ? <Image className='object-contain' fill={true} sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw" src={brandData.logo.url} alt={brandData.name+' Logo'} /> : ''}
           </div>
           {brandData.coverImage ? <Image className='object-cover mix-blend-soft-light' src={brandData.coverImage.url} alt={brandData.coverImage.alt ? brandData.coverImage.alt : ''} fill={true} sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw"/> : ''}
         </div>
         <div className='h-11 bg-black text-tan text-xl font-medium relative flex justify-center items-center -pl-1.5 -pb-1.5 -pr-1.5 -bottom-1.5'>
           <p className=' text-center'>
-            {brandData.title}
+            {brandData.name}
           </p>
           <div className='absolute left-0 top-0 bottom-0 w-10 my-0.5 p-0.5 pb-1'>
             <IndustryIcon styles='' color='#D8C1AC' name={brandData.industry ? brandData.industry : 'default'}/>

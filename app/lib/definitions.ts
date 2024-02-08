@@ -9,7 +9,7 @@ export const INSTAGRAM_LINK = '';
 export const TWITTER_LINK = '';
 export const PATREON_LINK = '';
 
-export const DEBUG = true;
+export const DEBUG = false;
 
 export const REVALIDATE_INTERVAL = 0;
 export const SIMULATE_LAG = 0;
@@ -27,7 +27,8 @@ export const COLORS = {
 export type BrandPage = { // Structure of parsed Company/Organization page
     status: string, //TODO make enum
     id: number,
-    title: string,
+    name: string,
+    url_name: string,
     logo?: {
         url: string,
     },

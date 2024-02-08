@@ -78,7 +78,8 @@ export async function fetchBrandPage(pageName: string, revalidate?:boolean): Pro
     const pageData: BrandPage = { // TODO: Catch errors
         status: 'success',
         id: Number( locateParam(pageResponse, WIKI_HTML_MAP.ID) ),
-        title: locateParam(pageResponse, WIKI_HTML_MAP.TITLE),
+        name: locateParam(pageResponse, WIKI_HTML_MAP.TITLE),
+        url_name: encodeURIComponent(pageName),
         logo: {
             url: logoUrl.length > 0 ? (logoUrl.includes('://') ? logoUrl : MW_URL + logoUrl) : '',
         },
@@ -90,7 +91,7 @@ export async function fetchBrandPage(pageName: string, revalidate?:boolean): Pro
         industry: locateParam(datatableHTMLString, BRAND_HTML_MAP.INDUSTRY),
         brands: adoptLinks(locateParam(datatableHTMLString, BRAND_HTML_MAP.BRANDS)),
         products: locateParam(datatableHTMLString, BRAND_HTML_MAP.PRODUCTS),
-        description: recontextualizeLinks(locateParam(pageResponse, BRAND_HTML_MAP.SUMMARY)),
+        description: parseWikipediaExcerpts(recontextualizeLinks(locateParam(pageResponse, BRAND_HTML_MAP.SUMMARY))),
         reportNames: locateParam(pageResponse, BRAND_HTML_MAP.REPORTS).split("title=\"")
         .map( (str) => { 
             return str.substring( 0, str.indexOf("\"") ); 
@@ -140,7 +141,7 @@ export async function fetchReportPages(pageNames: string[], revalidate?: boolean
                 type: type,
                 timeframe: locateParam(dataResponse, REPORT_HTML_MAP.TIMEFRAME),
                 preview: pagePreviewResponses[index],
-                content: renderHTMLString(recontextualizeLinks(locateParam(pageResponse, REPORT_HTML_MAP.CONTENT))),
+                content: renderHTMLString(recontextualizeLinks(parseWikipediaExcerpts(locateParam(pageResponse, REPORT_HTML_MAP.CONTENT)))),
             };
         }
     );
@@ -163,6 +164,38 @@ function locateParam(htmlString: string, paramLoc: HTMLStringLocation): string {
     return  afterStr.substring( 0,
                 afterStr.indexOf(paramLoc.endToken)
             ).trim();
+}
+
+const WE_HEADER = 'class=\"card wikipedia-excerpt';
+const WE_END = 'class=\"card-border';
+
+function parseWikipediaExcerpts(htmlString: string): string {
+    if (htmlString.includes(WE_HEADER)) {
+        const [beforeExcerpt, ...excerptSections] = htmlString.split(WE_HEADER); // Split into each excerpt
+        // console.log('[Wikipedia Excerpt] Found excerpts: ', excerptSections.length);
+
+        return beforeExcerpt + WE_HEADER + excerptSections.map((excerptSection, index) => {
+            // Check paragraph classname
+            var paragraphLength = Number(excerptSection.substring(excerptSection.indexOf('num-paragraphs-')+'num-paragraphs-'.length, excerptSection.indexOf('\"')));
+            if (paragraphLength == 0)
+                paragraphLength = -1;
+            // console.log('[Wikipedia Excerpt] Paragraph length ', paragraphLength);
+
+            const [excerpt, ...afterExcerpts] = excerptSection.split(WE_END);
+            const [beforeP, ...pTags] = excerpt.split('<p');
+
+            return beforeP + pTags.map((pTag) => {
+                const [insideP, afterP] = pTag.split('</p>');
+                const pContent = insideP.substring(insideP.indexOf('>')+1);
+                if (paragraphLength == 0 || pContent.trim() == '' || pContent.trim() == '<br/>')
+                    return '<p style="display:none;" ' + pTag;
+                paragraphLength --;
+                return '<p ' + pTag;
+            }).join('') + WE_END + afterExcerpts.join(WE_END);
+        }).join(WE_HEADER);
+
+    }
+    return htmlString;
 }
 
 
@@ -253,8 +286,6 @@ async function fetchPageHTMLString(pageName: string, forceRevalidate?:boolean): 
   function adoptLinks(htmlString: string ): string {
     return htmlString.replaceAll('/w/', B_URL+'/b/'); 
   }
-
-
 
 
 type MWSearchResults = { // Structure of search response

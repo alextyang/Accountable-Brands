@@ -9,7 +9,7 @@ import { useState } from "react";
 
 const MW_DIRECT_URL = MW_URL+"/w/index.php";
 
-export default function ActionMenu({pageName}:{pageName:string}) {
+export default function ActionMenu({pageName, pageUrlName}:{pageName:string, pageUrlName:string}) {
     const url = MW_DIRECT_URL + (new URLSearchParams({title:pageName}));
     const [isMenuOpen, setIsMenuOpen] = useState(false); 
 
@@ -28,7 +28,7 @@ export default function ActionMenu({pageName}:{pageName:string}) {
         <div className="relative h-14 aspect-square mt-0.5 -mb-1 p-1">
             <InteractiveIcon styles=' cursor-pointer' onClick={openMenu} name={pageName.includes('/') ? 'vertical-dots' : 'horizontal-dots'}/>
             <ClickOutside onClick={closeMenu}>
-                {isMenuOpen ? (<ActionDropdown styles="absolute right-4" pageName={pageName} />) : ('')}
+                {isMenuOpen ? (<ActionDropdown styles="absolute right-4" pageName={pageUrlName} />) : ('')}
             </ClickOutside>
         </div>
     );

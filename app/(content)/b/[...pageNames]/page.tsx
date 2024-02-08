@@ -66,7 +66,7 @@ async function BrandPage({brandName}:{brandName:string}) {
 
 async function ReportsPage({brandData}:{brandData:BrandPage}) {
     if (!brandData.reportNames || brandData.reportNames.length < 1) 
-        return (<NoReportsFound brandName={brandData.title}/>);
+        return (<NoReportsFound brandName={brandData.name} brandUrlName={brandData.url_name}/>);
 
     const rawReports = await fetchReportPages(brandData.reportNames, false);
     var reports: ReportPage[] = []; 
@@ -76,22 +76,22 @@ async function ReportsPage({brandData}:{brandData:BrandPage}) {
     });
 
     if (!reports || reports.length < 1) 
-        return (<NoReportsFound brandName={brandData.title}/>);
+        return (<NoReportsFound brandName={brandData.name} brandUrlName={brandData.url_name}/>);
 
     return (
         <div>
             <ReportGrid reports={reports} />
-            <AddReportCard pageName={brandData.title} />
+            <AddReportCard pageName={brandData.name} pageUrlName={brandData.url_name}/>
         </div>
     )
 }
 
-function NoReportsFound({brandName}:{brandName:string}) {
+function NoReportsFound({brandName, brandUrlName}:{brandName:string, brandUrlName:string}) {
     return (
       <div className='flex flex-col w-full justify-center items-center p-16'>
           <Icon styles='w-16 h-16 mb-4 opacity-60' name='info' />
           <p className='text-3xl font-medium opacity-75'>&apos;{brandName}&apos; has no reports yet.</p>
-          <a target="_blank" rel="noopener noreferrer" href={MW_URL+'/wiki/'+brandName} className='text-xl mt-14 font-medium opacity-75 text-center'>Found something? <span className='underline underline-offset-1'>Add it here!</span></a>
+          <a target="_blank" rel="noopener noreferrer" href={MW_URL+'/wiki/'+brandUrlName} className='text-xl mt-14 font-medium opacity-75 text-center'>Found something? <span className='underline underline-offset-1'>Add it here!</span></a>
       </div>
     )
   }
@@ -107,15 +107,15 @@ async function BrandSummary({brandData}:{brandData:BrandPage}) {
                     <div className='flex flex-row flex-nowrap w-full justify-end'> {/* Logo & Infocard & Products */}
                         <div className='m-6 min-w-32 min-h-32 max-w-lg w-1/5 flex flex-col justify-center items-center'>
                             <div className='max-h-40 relative lg:w-3/4 lg:h-3/4 w-full h-full'> {/* Logo */}
-                                {brandData.logo ? <Image className='object-contain' fill={true} sizes="33vw" src={brandData.logo.url} alt={brandData.title + ' Logo'} /> : ''}
+                                {brandData.logo ? <Image className='object-contain' fill={true} sizes="33vw" src={brandData.logo.url} alt={brandData.name + ' Logo'} /> : ''}
                             </div>
                         </div>
                         <div className='relative grow flex flex-col justify-start items-end'> {/* Infocard & Products */}
-                            <ActionMenu pageName={brandData.title} />
+                            <ActionMenu pageName={brandData.name} pageUrlName={brandData.url_name} />
                             <div className='w-full bg-black flex flex-row py-3.5 px-4 text-tan'> {/* Infocard */}
                                 <div className='justify-self-start self-start'> {/* Title & Industry */}
                                     <div className='flex flex-row items-end justify-start mt-0.5'> {/* Title + Icon */}
-                                        <p className=' whitespace-nowrap sm:text-5xl text-4xl font-bold tracking-tight'>{brandData.title}</p>
+                                        <p className=' whitespace-nowrap sm:text-5xl text-4xl font-bold tracking-tight'>{brandData.name}</p>
                                         <IndustryIcon styles='block h-7 w-7 sm:h-8 sm:w-8 mb-1.5 -pt-0.5 sm:ml-2 ml-1 ' color='#D8C1AC' name={brandData.industry ? brandData.industry : 'default'}/>
                                     </div>
                                     <div className=' ml-0.5 -mt-0.25 -mb-0.5'> {/* Industry */}
@@ -138,7 +138,7 @@ async function BrandSummary({brandData}:{brandData:BrandPage}) {
                             </div>
                             <div className='flex flex-row items-start w-full py-3.5 px-4'> {/* Products */}
                                 <div className='flex flex-row justify-start  justify-self-start -ml-1'> {/* Icons */}
-                                    <ProductIcons styles='h-7 w-7 sm:h-8 sm:w-8 mr-0.5 mb-1.5 -pt-0.5' pageName={brandData.title} excludeIndustry={brandData.industry ? brandData.industry : 'default'} names={brandData.products ? brandData.products.split('  •  ') : []} />
+                                    <ProductIcons styles='h-7 w-7 sm:h-8 sm:w-8 mr-0.5 mb-1.5 -pt-0.5' pageName={brandData.name} excludeIndustry={brandData.industry ? brandData.industry : 'default'} names={brandData.products ? brandData.products.split('  •  ') : []} />
                                 </div>
                                 <div className='text-right grow justify-self-end pl-4 sm:text-base font-medium text-base tracking-normal '> {/* Brands */}
                                         <div className='text-balance pr-2.5 sm:-mt-1'>{renderHTMLString(brandData.products)}</div>
@@ -160,12 +160,12 @@ async function BrandSummary({brandData}:{brandData:BrandPage}) {
 }
 
 
-function AddReportCard({pageName}:{pageName:string}) {
+function AddReportCard({pageName, pageUrlName}:{pageName:string, pageUrlName:string}) {
     return (
       <div className='h-16 w-96 mx-auto mt-12 relative cursor-pointer'>
         <h2 className='text-2xl -ml-px mt-2 -mb-0.5 font-medium'>Missing something? Add it!</h2>
         <Link href="/policy" className='text-base font-normal cursor-pointer relative z-10'>Make sure to check our <span className='underline' >report policy</span> first.</Link>
-        <Link href={MW_URL+'/wiki/'+pageName+'#Reports'} className='absolute top-0 bottom-0 left-0 right-0 z-00'></Link>
+        <Link href={MW_URL+'/wiki/'+pageUrlName+'#Reports'} className='absolute top-0 bottom-0 left-0 right-0 z-00'></Link>
         <Icon styles='!absolute right-0 top-0 h-16 w-16 mr-0.5' name='add-page' />
       </div>
     );
