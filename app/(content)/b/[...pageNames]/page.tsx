@@ -89,7 +89,7 @@ async function ReportsPage({brandData}:{brandData:BrandPage}) {
 function NoReportsFound({brandName, brandUrlName}:{brandName:string, brandUrlName:string}) {
     return (
       <div className='flex flex-col w-full justify-center items-center p-16'>
-          <Icon styles='w-16 h-16 mb-4 opacity-60' name='info' />
+          <Icon className='w-16 h-16 mb-4 opacity-60' name='info' />
           <p className='text-3xl font-medium opacity-75'>&apos;{brandName}&apos; has no reports yet.</p>
           <a target="_blank" rel="noopener noreferrer" href={MW_URL+'/wiki/'+brandUrlName} className='text-xl mt-14 font-medium opacity-75 text-center'>Found something? <span className='underline underline-offset-1'>Add it here!</span></a>
       </div>
@@ -116,7 +116,7 @@ async function BrandSummary({brandData}:{brandData:BrandPage}) {
                                 <div className='justify-self-start self-start'> {/* Title & Industry */}
                                     <div className='flex flex-row items-end justify-start mt-0.5'> {/* Title + Icon */}
                                         <p className=' whitespace-nowrap sm:text-5xl text-4xl font-bold tracking-tight'>{brandData.name}</p>
-                                        <IndustryIcon styles='block h-7 w-7 sm:h-8 sm:w-8 mb-1.5 -pt-0.5 sm:ml-2 ml-1 ' color='#D8C1AC' name={brandData.industry ? brandData.industry : 'default'}/>
+                                        <IndustryIcon className='block h-7 w-7 sm:h-8 sm:w-8 mb-1.5 -pt-0.5 sm:ml-2 ml-1 ' color='#D8C1AC' name={brandData.industry ? brandData.industry : 'default'}/>
                                     </div>
                                     <div className=' ml-0.5 -mt-0.25 -mb-0.5'> {/* Industry */}
                                         <p className='whitespace-nowrap sm:text-2xl text-xl font-regular'>{renderHTMLString(brandData.industry)}</p>
@@ -138,7 +138,7 @@ async function BrandSummary({brandData}:{brandData:BrandPage}) {
                             </div>
                             <div className='flex flex-row items-start w-full py-3.5 px-4'> {/* Products */}
                                 <div className='flex flex-row justify-start  justify-self-start gap-0.5 -ml-1'> {/* Icons */}
-                                    <ProductIcons styles='h-7 w-7 sm:h-8 sm:w-8 mr-1 mb-1.5 -pt-0.5' pageName={brandData.name} excludeIndustryRaw={brandData.industry ? brandData.industry : 'default'} names={brandData.products ? brandData.products.split(' • ') : []} />
+                                    <ProductIcons className='h-7 w-7 sm:h-8 sm:w-8 mr-0.5 mb-1.5 -pt-0.5' pageName={brandData.name} excludeIndustryRaw={brandData.industry ? brandData.industry : 'default'} names={brandData.products ? brandData.products.split(' • ') : []} />
                                 </div>
                                 <div className='text-right grow justify-self-end pl-4 sm:text-base font-medium text-base tracking-normal '> {/* Brands */}
                                         <div className='text-balance pr-2.5 sm:-mt-1'>{renderHTMLString(brandData.products)}</div>
@@ -166,7 +166,7 @@ function AddReportCard({pageName, pageUrlName}:{pageName:string, pageUrlName:str
         <h2 className='text-2xl -ml-px mt-2 -mb-0.5 font-medium'>Missing something? Add it!</h2>
         <Link href="/policy" className='text-base font-normal cursor-pointer relative z-10'>Make sure to check our <span className='underline' >report policy</span> first.</Link>
         <Link href={MW_URL+'/wiki/'+pageUrlName+'#Reports'} className='absolute top-0 bottom-0 left-0 right-0 z-00'></Link>
-        <Icon styles='!absolute right-0 top-0 h-16 w-16 mr-0.5' name='add-page' />
+        <Icon className='!absolute right-0 top-0 h-16 w-16 mr-0.5' name='add-page' />
       </div>
     );
   }

@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { LoadingBrandItem, LoadingReportItem, LoadingSearchRow } from './loading';
 
 
-export default async function SearchResults({ searchQuery, pageNumber = 0, resultCount = 10, styles = ""}: {searchQuery: string, pageNumber?:number, resultCount?:number, styles?: string, debug?: boolean }) {
+export default async function SearchResults({ searchQuery, pageNumber = 0, resultCount = 10, className = ""}: {searchQuery: string, pageNumber?:number, resultCount?:number, className?: string, debug?: boolean }) {
     const searchResponse = await searchBrands({query:searchQuery, resultCount:resultCount, resultPage:pageNumber});
 
     if (searchResponse === undefined || searchResponse.length < 1) {
@@ -17,7 +17,7 @@ export default async function SearchResults({ searchQuery, pageNumber = 0, resul
       );
     }
     return (
-      <div className={'flex flex-col items-center justify-start w-full mb-8'+styles}>
+      <div className={'flex flex-col items-center justify-start w-full mb-8'+className}>
         {searchResponse.map((item) => {
           return (
           <Suspense key={item} fallback={<LoadingSearchRow/>}>
@@ -43,7 +43,7 @@ export default async function SearchResults({ searchQuery, pageNumber = 0, resul
             <div className=' flex-grow flex justify-center items-center'> 
               <div className=' relative flex flex-row items-center justify-center'>
                 <p className='z-30 text-3xl font-medium relative mr-1'>See More</p>
-                <Icon styles=' z-30 w-20 h-20' name='right-arrow'/>
+                <Icon className=' z-30 w-20 h-20' name='right-arrow'/>
                 <div className='z-20 bg-tan rounded-full blur-lg -my-2 -mx-12 absolute top-0 bottom-0 left-0 right-0'></div>
               </div>
             </div>
@@ -64,22 +64,22 @@ export default async function SearchResults({ searchQuery, pageNumber = 0, resul
   }
 
 
-export const SEARCH_ITEM_STYLES = ' shrink-0 h-52 grow relative max-w-128 text-xl font-medium first:-ml-1.5 last:-mr-1.5 min-w-64 ';
+export const SEARCH_ITEM_className = ' shrink-0 h-52 grow relative max-w-128 text-xl font-medium first:-ml-1.5 last:-mr-1.5 min-w-64 ';
   async function BrandSearchItem({brandData}:{brandData:BrandPage}) {
     return (
-      <div className={SEARCH_ITEM_STYLES+' border-x-black border-x-6 border-b-black border-b-6 text-xl font-medium flex flex-col'}>
-        <div className='relative h-full w-full flex justify-center items-center overflow-hidden bg-tan'>
-          <div className='flex-item relative min-w-8 w-32 h-32 z-10'>
+      <div className={SEARCH_ITEM_className+' border-x-black border-x-6 border-b-black border-b-6 text-xl font-medium flex flex-col'}>
+        <div className='relative h-full w-full flex justify-center items-center overflow-hidden bg-tan -mb-1.5'>
+          <div className='flex-item relative w-full h-full min-w-8 max-w-64 max-h-32 z-10 '>
             {brandData.logo ? <Image className='object-contain' fill={true} sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw" src={brandData.logo.url} alt={brandData.name+' Logo'} /> : ''}
           </div>
-          {brandData.coverImage ? <Image className='object-cover mix-blend-soft-light' src={brandData.coverImage.url} alt={brandData.coverImage.alt ? brandData.coverImage.alt : ''} fill={true} sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw"/> : ''}
+          {brandData.coverImage ? <Image className='object-cover mix-blend-soft-light opacity-75' src={brandData.coverImage.url} alt={brandData.coverImage.alt ? brandData.coverImage.alt : ''} fill={true} sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw"/> : ''}
         </div>
         <div className='h-11 bg-black text-tan text-xl font-medium relative flex justify-center items-center -pl-1.5 -pb-1.5 -pr-1.5 -bottom-1.5'>
           <p className=' text-center'>
             {brandData.name}
           </p>
           <div className='absolute left-0 top-0 bottom-0 w-10 my-0.5 p-0.5 pb-1'>
-            <IndustryIcon styles='' color='#D8C1AC' name={brandData.industry ? brandData.industry : 'default'}/>
+            <IndustryIcon className='' color='#D8C1AC' name={brandData.industry ? brandData.industry : 'default'}/>
           </div>
         </div>
       </div>
@@ -90,7 +90,7 @@ export const SEARCH_ITEM_STYLES = ' shrink-0 h-52 grow relative max-w-128 text-x
     const [reportData] = await fetchReportPages([reportName]);
 
     return (
-      <div className={SEARCH_ITEM_STYLES+' border-r-black border-r-6 border-b-black border-b-6 relative overflow-hidden text-ellipsis'}>
+      <div className={SEARCH_ITEM_className+' border-r-black border-r-6 border-b-black border-b-6 relative overflow-hidden text-ellipsis'}>
         <div className='flex flex-col absolute bottom-0 top-0 left-0'>
           <div className='flex flex-row flex-nowrap h-min justify-start pt-2.5'>
             <div className='block justify-self-start pl-2.5 pr-1.5'>
@@ -98,7 +98,7 @@ export const SEARCH_ITEM_STYLES = ' shrink-0 h-52 grow relative max-w-128 text-x
             </div>
             
             <div className={'justify-self-end w-14 h-14 p-1 shrink-0 -mt-0.5 mr-2 '+REPORT_TYPES[reportData.type].color}>
-              <Icon styles={REPORT_TYPES[reportData.type].iconStyle} name={REPORT_TYPES[reportData.type].icon} color="#D8C1AC" />
+              <Icon className={REPORT_TYPES[reportData.type].iconStyle} name={REPORT_TYPES[reportData.type].icon} color="#D8C1AC" />
             </div>
           </div>
           <div className='mx-2.5 mt-1.5 mb-3 pb-0.5 h-full flex flex-col overflow-hidden'>
@@ -113,7 +113,7 @@ export const SEARCH_ITEM_STYLES = ' shrink-0 h-52 grow relative max-w-128 text-x
 
     return (
       <div className='flex flex-col w-full justify-center items-center p-16 text-center'>
-          <Icon styles='w-28 h-28 mb-4 opacity-60' name='no-results' />
+          <Icon className='w-28 h-28 mb-4 opacity-60' name='no-results' />
           <p className='text-3xl font-medium opacity-75'>Couldn&apos;t find anything for &apos;{query}&apos; </p>
           <p className='text-xl font-medium opacity-60'>Searched all brands, products, and industries.</p>
           <a target="_blank" rel="noopener noreferrer" href={ADD_BRAND_URL} className='text-xl mt-14 font-medium opacity-75 text-center'>Are we missing a brand? <span className='underline underline-offset-1'>Add it here!</span></a>
