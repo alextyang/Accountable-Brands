@@ -43,14 +43,14 @@ export default function Footer() {
   const [pageDisclaimer, setPageDisclaimer] = useState(baseFooterLinks);
 
   return (
-    <div className="mt-auto w-full h-full px-5 py-5 min-h-52 bg-black text-tan flex flex-col text-base">
-      <div className="flex flex-col lg:flex-row justify-between w-full whitespace-nowrap">
+    <div className="flex flex-col w-full h-full px-5 py-5 mt-auto text-base bg-black min-h-52 text-tan">
+      <div className="flex flex-row flex-wrap justify-between w-full gap-y-2 whitespace-nowrap">
         <FooterLinksSection />
         <SocialLinksSection />
       </div>
-      <div className="flex flex-row justify-between items-end w-full px-2.5 mt-5">
-        <TanIconMark className="h-12 mb-5" isLink={true} />
+      <div className="flex flex-row-reverse flex-wrap sm:flex-nowrap gap-y-6 justify-between items-end w-full px-2.5 mt-6 md:mt-12">
         <DisclaimerSection />
+        <TanIconMark className="h-12 mb-5 mr-auto" isLink={true} />
       </div>
     </div>
   );
@@ -73,26 +73,26 @@ const legalLinks: { link: string; href: string }[] = [
 
 function DisclaimerSection() {
   const assocDisclaimer =
-    "This site is not affliated with any corporate entities/organizations that appear on this page.";
+    "This site is not affliated with any incorporated entities or organizations that appear on this page.";
   const viewsDisclaimer =
-    "Even when cited, site content comes with no guarantee of completeness, accuracy, or timeliness.";
+    "Even when citations are provided, site content comes with no guarantee of completeness, accuracy, or timeliness.";
   const fairUseDisclaimer =
     "Non-free materials are used as part of non-commercial critical commentary, believed to be in accordance with U.S. 'fair use'.";
 
   return (
-    <div className="flex flex-col gap-2 text-right text-xs font-normal italic ml-12">
+    <div className="flex flex-col gap-2 text-xs italic font-normal text-right sm:ml-12">
       <p className="">
         {`${assocDisclaimer}`}
-        <br />
+        <br className="hidden md:inline" />{" "}
         {`${viewsDisclaimer}`}
-        <br />
+        <br className="hidden md:inline" />{" "}
         {`${fairUseDisclaimer}`}
       </p>
-      <div className="flex justify-end items-center -mt-px">
+      <div className="flex flex-wrap items-center justify-end -mt-px gap-y-1 gap-x-4 md:flex-nowrap whitespace-nowrap">
         {legalLinks.map((link) => {
           return (
             <Link
-              className="text-xs underline not-italic mr-4"
+              className="text-xs not-italic underline"
               key={link.link}
               href={link.href}
             >
@@ -100,16 +100,18 @@ function DisclaimerSection() {
             </Link>
           );
         })}
-        <Link
-          className="text-xs not-italic pr-0.5"
-          href="http://creativecommons.org/licenses/by/4.0/?ref=chooser-v1"
-          target="_blank"
-          rel="license noopener noreferrer"
-        >
-          Text is available under{" "}
-          <span className="ml-px font-medium">CC BY 4.0</span>
-        </Link>
-        <CCIcons className="h-5 w-5 p-px " color={COLORS.TAN} />
+        <div className="flex flex-row items-center justify-center flex-nowrap gap-0.5">
+          <Link
+            className="text-xs not-italic pr-0.5"
+            href="http://creativecommons.org/licenses/by/4.0/?ref=chooser-v1"
+            target="_blank"
+            rel="license noopener noreferrer"
+          >
+            Text is available under{" "}
+            <span className="ml-px font-medium">CC BY 4.0</span>
+          </Link>
+          <CCIcons className="w-5 h-5 p-px " color={COLORS.TAN} />
+        </div>
       </div>
     </div>
   );
@@ -119,7 +121,7 @@ function SocialLinksSection() {
   const iconStyle = "h-8 w-8";
 
   return (
-    <div className=" flex flex-row justify-end items-start gap-4 px-2.5 mt-4 lg:mt-1.5">
+    <div className=" flex flex-row justify-end ml-auto items-start gap-4 px-2.5 mt-4 lg:mt-1.5">
       <Link href={FACEBOOK_LINK}>
         <ServiceIcon className={iconStyle} name="facebook" color="#D8C1AC" />
       </Link>
@@ -164,7 +166,7 @@ function FooterLinksSection() {
   });
 
   return (
-    <div className="flex flex-row justify-start items-start px-2.5">
+    <div className="flex flex-row sm:flex-nowrap flex-wrap gap-y-8 gap-x-16 justify-start items-start px-2.5">
       {footerLinks.map((footerLink) => {
         return <FooterLinksList key={footerLink.header} links={footerLink} />;
       })}
@@ -178,14 +180,14 @@ function FooterLinksList({
   links: { header: string; links: string[]; hrefs: string[] };
 }) {
   return (
-    <div className="text-left leading-relaxed pr-16">
-      <h2 className="font-semibold opacity-60 mb-1">{links.header}</h2>
+    <div className="leading-relaxed text-left ">
+      <h2 className="mb-1 font-semibold opacity-60">{links.header}</h2>
       {links.links.map((link, index) => {
         return (
           <Link
             key={link}
             href={links.hrefs[index]}
-            className="font-medium mb-1 block"
+            className="block mb-1 font-medium"
           >
             {link}
           </Link>

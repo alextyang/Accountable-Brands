@@ -1,10 +1,10 @@
 import { IconMark } from "@/app/lib/assets/logos";
 import React from "react";
-export function MissionStatement({}) {
+export function MissionStatement({ }) {
   return (
-    <div className="relative flex mb-24 mt-8 md:mt-10 max-w-screen-md flex-col text-center w-auto">
+    <div className="relative flex flex-col w-auto max-w-screen-md mt-8 mb-24 text-center md:mt-10">
       <IconMark
-        className="h-12 flex items-center justify-center mr-4 mb-4"
+        className="flex items-center justify-center h-12 mb-4 mr-4"
         isLink={false}
       />
 
@@ -13,10 +13,10 @@ export function MissionStatement({}) {
         style={{
           lineHeight: "1.35",
         }}
-        className="md:inline font-medium text-3xl tracking-tight hidden"
+        className="hidden text-3xl font-medium tracking-tight md:inline"
       >
         <span className="inline whitespace-nowrap">
-          An open-source platform to empower employees &
+          An open-source platform, empowering employees &
         </span>{" "}
         <span className="inline whitespace-nowrap">
           consumers by{" "}
@@ -32,13 +32,13 @@ export function MissionStatement({}) {
         style={{
           lineHeight: "1.35",
         }}
-        className=" font-medium text-3xl tracking-tight hidden sm:inline md:hidden"
+        className="hidden text-3xl font-medium tracking-tight sm:inline md:hidden"
       >
         <span className="inline whitespace-nowrap">
-          An open-source platform to
+          An open-source platform,
         </span>{" "}
         <span className="inline whitespace-nowrap">
-          empower consumers & employees by
+          empowering consumers & employees by
         </span>{" "}
         <span className="inline-block whitespace-nowrap mt-1.5">
           {" "}
@@ -49,18 +49,18 @@ export function MissionStatement({}) {
         </span>
       </p>
 
-      {/* Medium format statement */}
+      {/* Small format statement */}
       <p
         style={{
           lineHeight: "1.35",
         }}
-        className=" font-medium text-2xl pt-2 tracking-tight inline sm:hidden"
+        className="hidden pt-2 text-2xl font-medium tracking-tight xs:inline sm:hidden"
       >
         <span className="inline whitespace-nowrap">
-          An open-source platform to
+          An open-source platform,
         </span>{" "}
         <span className="inline whitespace-nowrap">
-          empower consumers & employees
+          empowering consumers & employees by
         </span>{" "}
         <span className="inline-block whitespace-nowrap mt-1.5">
           {" "}
@@ -68,6 +68,33 @@ export function MissionStatement({}) {
             fighting the monopoly on information
             <span className="pl-0">.</span>
           </span>
+        </span>
+      </p>
+
+      {/* XS format statement */}
+      <p
+        style={{
+          lineHeight: "1.35",
+        }}
+        className="inline-block pt-2 text-2xl font-medium tracking-tight xs:hidden"
+      >
+        <span className="inline whitespace-nowrap">
+          An open-source platform,
+        </span>{" "}
+        <span className="inline whitespace-nowrap">empowering consumers &</span>{" "}
+        <span className="inline-block whitespace-nowrap">
+          employees by{" "}
+          <span className="relative px-1 pb-px bg-black text-tan">
+            fighting the
+          </span>
+        </span><br />
+        <span className="inline-block px-1 pb-px mt-1 bg-black whitespace-nowrap text-tan">
+          corporate monopoly on
+        </span>
+        <br />
+        <span className="inline-block px-1 pb-px mt-1 bg-black whitespace-nowrap text-tan">
+          information
+          <span className="pl-0">.</span>
         </span>
       </p>
     </div>

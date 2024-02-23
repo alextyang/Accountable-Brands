@@ -3,29 +3,24 @@ import React from "react";
 import { SearchBar } from "../(content)/search/[searchQuery]/searchBar";
 import BetaIndicator from "@/app/lib/assets/betaIndicator";
 import { Icon } from "@/app/lib/icons/ui-icons";
+import { SplashMessage } from "./splashMessage";
 
-export function SplashScreen({}) {
+export function SplashScreen({ }) {
   return (
     <div
       style={{
         minHeight: "600px",
       }}
-      className="h-screen w-full relative flex flex-col items-center justify-start align-middle"
+      className="relative flex flex-col items-center justify-start w-full h-screen align-middle"
     >
       <TitleSplash />
       <SearchBar
-        prompt=""
-        className="w-full max-w-2xl h-12 border-black border-6"
+        prompt="Search for brands, products, industries..."
+        className="w-full h-12 max-w-2xl border-black border-6"
         icon="search-small"
-        debug
-      />
-      <div className="w-full max-w-2xl flex flex-row justify-center mt-3 gap-3">
-        <BetaIndicator />
-        <p className="font-medium text-lg">
-          Crowd-sourced consumer empowerment.
-        </p>
-      </div>
-      <div className="absolute flex flex-row items-center justify-center h-32 bottom-12 w-full left-0 right-0 gap-1">
+        debug />
+      <SplashMessage />
+      <div className="absolute left-0 right-0 flex flex-row items-center justify-center w-full h-32 gap-1 bottom-12">
         <p className="text-xl font-medium">How it works</p>
         <Icon className="w-12 h-12 !block" name="down-arrow" />
       </div>
