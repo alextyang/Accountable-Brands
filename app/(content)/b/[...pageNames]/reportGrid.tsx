@@ -2,7 +2,7 @@
 
 import { Icon } from "@/app/lib/icons/ui-icons";
 import ActionMenu from "./actionMenu";
-import { ReportPage, REPORT_TYPES, B_URL } from "@/app/lib/definitions";
+import { ReportPage, REPORT_TYPES } from "@/app/lib/definitions";
 import {
   ForwardedRef,
   MutableRefObject,
@@ -14,9 +14,7 @@ import {
   useRef,
   useState,
 } from "react";
-import ClickOutside from "@/app/lib/utils/ClickOutside";
 import { Transition, TransitionStatus } from "react-transition-group";
-import { EXITED } from "react-transition-group/Transition";
 import {
   usePathname,
   useParams,
@@ -27,8 +25,8 @@ import {
 export function ReportGrid({ reports }: { reports: ReportPage[] }) {
   const params = useParams();
   const [brandName, reportName] = [
-    decodeURI(params.pageNames[0]),
-    decodeURI(params.pageNames[1]),
+    decodeURIComponent(params.pageNames[0]),
+    decodeURIComponent(params.pageNames[1]),
   ];
 
   const [openReport, setOpenReport] = useState(
@@ -93,12 +91,13 @@ export function ReportGrid({ reports }: { reports: ReportPage[] }) {
 
     setModalOffsetBox(getBox(gridRef.current)); // Save offset bounding box
     setOpenReport(index); // Save open report
+    setShouldAnimate(true);
   };
 
   const saveNavigation = () => {
-    let url = B_URL + "/b/";
-    if (openReport == -1) url += brandName;
-    else url += reports[openReport].title;
+    let url = window.location.href.substring(0, window.location.href.indexOf(window.location.pathname)) + "/b/";
+    if (openReport == -1) url += encodeURIComponent(brandName);
+    else url += encodeURIComponent(brandName) + '/' + encodeURIComponent(reports[openReport].title.substring(reports[openReport].title.indexOf('/') + 1));
 
     window.history.pushState(null, "", url);
     console.log("[Page] Shallow nav-ed to ", url);
@@ -114,7 +113,7 @@ export function ReportGrid({ reports }: { reports: ReportPage[] }) {
     <div className="h-full">
       <div
         ref={gridRef}
-        className="flex flex-row flex-wrap h-full justify-stretch relative -m-2 mt-1"
+        className="relative flex flex-row flex-wrap h-full mt-1 -m-2 justify-stretch"
       >
         {" "}
         {/* Report Grid */}
@@ -130,7 +129,7 @@ export function ReportGrid({ reports }: { reports: ReportPage[] }) {
             ></ReportItemForwarded>
           );
         })}
-        <div className="grow h-48">
+        <div className="h-48 grow">
           {" "}
           <div className="w-full"></div>{" "}
         </div>
@@ -164,7 +163,7 @@ export function ReportGrid({ reports }: { reports: ReportPage[] }) {
                 )}
                 {reports[openReport] ? (
                   <div
-                    className=" opacity-0 z-10 fixed top-0 bottom-0 left-0 right-0 cursor-pointer "
+                    className="fixed top-0 bottom-0 left-0 right-0 z-10 opacity-0 cursor-pointer "
                     onClick={() => setReport(-1)}
                   ></div>
                 ) : (
@@ -194,7 +193,7 @@ export function ReportGrid({ reports }: { reports: ReportPage[] }) {
           )}
           {reports[openReport] ? (
             <div
-              className=" opacity-0 z-10 fixed top-0 bottom-0 left-0 right-0 cursor-pointer "
+              className="fixed top-0 bottom-0 left-0 right-0 z-10 opacity-0 cursor-pointer "
               onClick={() => {
                 setReport(-1);
               }}
@@ -287,10 +286,10 @@ function ReportItem(
               name={REPORT_TYPES[report.type].icon}
               color="#D8C1AC"
             />
-            <div className="absolute right-16 top-0 text-right ">
+            <div className="absolute top-0 text-right right-16 ">
               {" "}
               {/* Date & Type Label */}
-              <p className="text-sm whitespace-nowrap font-medium  ">
+              <p className="text-sm font-medium whitespace-nowrap ">
                 {report.timeframe}
               </p>
               <p
@@ -303,16 +302,16 @@ function ReportItem(
               </p>
             </div>
           </div>
+          {/* Title */}
           <div className="-mt-0">
-            <p className="text-2xl font-medium leading-7 tracking-tight text-balance">
+            <p className="text-xl font-medium leading-tight tracking-tight md:text-2xl text-balance">
               {report.title.substring(report.title.indexOf("/") + 1)}
             </p>
           </div>
-          {/* Title */}
+          {/* Content Preview */}
           <p className="text-base mt-1 ml-0.5 mr-20 line-clamp-4 sm:line-clamp-3 md:line-clamp-4 xl:line-clamp-5">
             {report.preview}
           </p>{" "}
-          {/* Content Preview */}
         </div>
       </div>
     </div>
@@ -412,7 +411,7 @@ function AnimatedReportModal({
                 }[state],
               }}
               className={
-                "z-30 overflow-y-hidden relative ml-32 w-14 h-14 p-1 overflow-visible " +
+                "z-30 overflow-y-hidden relative ml-32 w-14 h-14 p-1 overflow-hidden " +
                 REPORT_TYPES[report.type].color
               }
             >
@@ -434,11 +433,11 @@ function AnimatedReportModal({
                     unmounted: {},
                   }[state],
                 }}
-                className="absolute z-20 right-16 top-0 text-right opacity-100 "
+                className="absolute top-0 z-20 text-right opacity-100 right-16 "
               >
                 {" "}
                 {/* Date & Type Label */}
-                <p className="text-sm whitespace-nowrap font-medium  ">
+                <p className="text-sm font-medium whitespace-nowrap ">
                   {report.timeframe}
                 </p>
                 <p
@@ -451,9 +450,8 @@ function AnimatedReportModal({
                 </p>
               </div>
               <p
-                style={REPORT_TYPES[report.type].textPosition}
                 className={
-                  "text-3xl whitespace-nowrap font-semibold rotate-90 absolute text-tan "
+                  "text-3xl whitespace-nowrap font-semibold rotate-90 mt-3.5 text-tan"
                 }
               >
                 {REPORT_TYPES[report.type].name}
@@ -499,7 +497,7 @@ function AnimatedReportModal({
                   unmounted: {},
                 }[state],
               }}
-              className="h-min -mt-0 text-2xl font-medium leading-7 absolute tracking-tight text-balance"
+              className="absolute -mt-0 text-xl font-medium leading-tight tracking-tight md:text-2xl h-min text-balance"
             >
               {report.title.substring(report.title.indexOf("/") + 1)}
             </p>
@@ -510,7 +508,6 @@ function AnimatedReportModal({
               transition: `clip-path 600ms ease-in-out 350ms`,
               top: "10.5px",
               marginRight: "4.7rem",
-              lineHeight: "2.625rem",
               ...{
                 entering: { clipPath: "rect(0 0 100% 0)" },
                 exited: {},
@@ -519,9 +516,9 @@ function AnimatedReportModal({
                 unmounted: {},
               }[state],
             }}
-            className="z-40 right-0  pb-1 absolute bg-black left-3 flex overflow-hidden"
+            className="absolute right-0 z-40 flex pb-1 overflow-hidden bg-black left-3"
           >
-            <p className="h-min -mt-0 w-full text-tan p-1 pl-2 text-4xl font-medium tracking-tight text-balance">
+            <p className="w-full p-1 pl-2 -mt-0 text-3xl font-medium leading-tight tracking-tight md:text-4xl h-min text-tan text-balance">
               {report.title.substring(report.title.indexOf("/") + 1)}
             </p>
           </div>
@@ -530,9 +527,8 @@ function AnimatedReportModal({
             style={{
               top: "10.5px",
               paddingRight: "4.7rem",
-              lineHeight: "2.625rem",
             }}
-            className="h-min -mt-0 w-full opacity-0 pointer-events-none p-1 pl-2 text-4xl font-medium tracking-tight text-balance"
+            className="w-full p-1 pl-2 -mt-0 text-3xl font-medium leading-tight tracking-tight opacity-0 pointer-events-none md:text-4xl h-min text-balance"
           >
             {report.title.substring(report.title.indexOf("/") + 1)}
           </p>
@@ -567,7 +563,7 @@ function AnimatedReportModal({
             className="report-content text-base m-2.5 mt-1 mr-16 "
           >
             {/* Dates Subheader  */}
-            <div className="text-base whitespace-nowrap font-semibold -mb-5  ">
+            <div className="mt-3 -mb-4 text-base font-semibold whitespace-nowrap ">
               {report.timeframe}
             </div>
             {report.content}
@@ -625,7 +621,7 @@ function StaticReportModal({
                 height: REPORT_TYPES[report.type].textLength,
               }}
               className={
-                "z-30 overflow-y-hidden relative ml-32 w-14 h-14 p-1 overflow-visible " +
+                "z-30 overflow-y-hidden relative ml-32 w-14 h-14 p-1 overflow-hidden " +
                 REPORT_TYPES[report.type].color
               }
             >
@@ -638,11 +634,11 @@ function StaticReportModal({
               />
               <div
                 style={{ right: "0", opacity: "0" }}
-                className="absolute z-20 right-16 top-0 text-right opacity-100 "
+                className="absolute top-0 z-20 text-right opacity-100 right-16 "
               >
                 {" "}
                 {/* Date & Type Label */}
-                <p className="text-sm whitespace-nowrap font-medium  ">
+                <p className="text-sm font-medium whitespace-nowrap ">
                   {report.timeframe}
                 </p>
                 <p
@@ -655,9 +651,8 @@ function StaticReportModal({
                 </p>
               </div>
               <p
-                style={{ left: "-78.4px", top: "150px" }}
                 className={
-                  "text-3xl whitespace-nowrap font-semibold rotate-90 absolute text-tan "
+                  "text-3xl whitespace-nowrap font-semibold rotate-90  mt-3.5 text-tan "
                 }
               >
                 {REPORT_TYPES[report.type].name}
@@ -673,12 +668,11 @@ function StaticReportModal({
             style={{
               top: "10.5px",
               marginRight: "4.7rem",
-              lineHeight: "2.625rem",
               clipPath: "rect(0 100% 100% 0)",
             }}
-            className="z-40 right-0 absolute bg-black left-3 flex pb-1 overflow-hidden"
+            className="absolute right-0 z-40 flex pb-1 overflow-hidden bg-black left-3"
           >
-            <p className="h-min -mt-0 w-full text-tan p-1 pl-2 text-4xl font-medium tracking-tight text-balance">
+            <p className="w-full p-1 pl-2 -mt-0 text-3xl font-medium tracking-tight md:text-4xl h-min text-tan text-balance">
               {report.title.substring(report.title.indexOf("/") + 1)}
             </p>
           </div>
@@ -687,9 +681,8 @@ function StaticReportModal({
             style={{
               top: "10.5px",
               paddingRight: "4.7rem",
-              lineHeight: "2.625rem",
             }}
-            className="h-min -mt-0 w-full opacity-0 pointer-events-none p-1 pl-2 text-4xl font-medium tracking-tight text-balance"
+            className="w-full p-1 pl-2 -mt-0 text-3xl font-medium tracking-tight opacity-0 pointer-events-none md:text-4xl h-min text-balance"
           >
             {report.title.substring(report.title.indexOf("/") + 1)}
           </p>
@@ -706,7 +699,7 @@ function StaticReportModal({
             className="report-content text-base m-2.5 mt-1 mr-16 "
           >
             {/* Dates Subheader  */}
-            <div className="text-base whitespace-nowrap font-semibold -mb-5  ">
+            <div className="mt-3 -mb-4 text-base font-semibold whitespace-nowrap ">
               {report.timeframe}
             </div>
             {report.content}

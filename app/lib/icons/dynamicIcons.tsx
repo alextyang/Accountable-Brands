@@ -1,5 +1,5 @@
 import Fuse, { FuseResult } from "fuse.js";
-import icons from "./icons.json";
+import icons from "@/icons.json";
 import { DEBUG } from "../definitions";
 import { promises as fs } from "fs";
 
@@ -97,11 +97,11 @@ export async function ProductIcons({
       if (DEBUG)
         console.log(
           "[IconSearch] Got duplicate for " +
-            name +
-            ": " +
-            iconResult[0].item.name +
-            " - " +
-            iconResult[0].score
+          name +
+          ": " +
+          iconResult[0].item.name +
+          " - " +
+          iconResult[0].score
         );
 
       if (productIconResults.includes(iconResult[0].item)) {
@@ -115,7 +115,7 @@ export async function ProductIcons({
         });
         tempMissingIcons[key].priority =
           iconResult[0].score &&
-          tempMissingIcons[key].priority > iconResult[0].score
+            tempMissingIcons[key].priority > iconResult[0].score
             ? iconResult[0].score
             : tempMissingIcons[key].priority;
         isProblematic = true;
@@ -135,7 +135,7 @@ export async function ProductIcons({
         });
         tempMissingIcons[key].priority =
           iconResult[0].score &&
-          tempMissingIcons[key].priority > iconResult[0].score
+            tempMissingIcons[key].priority > iconResult[0].score
             ? iconResult[0].score
             : tempMissingIcons[key].priority;
         isProblematic = true;
@@ -148,11 +148,11 @@ export async function ProductIcons({
       if (DEBUG)
         console.log(
           "[IconSearch] Found for " +
-            name +
-            ": " +
-            iconResult[0].item.name +
-            " - " +
-            iconResult[0].score
+          name +
+          ": " +
+          iconResult[0].item.name +
+          " - " +
+          iconResult[0].score
         );
       tempMissingIcons[key].fallbackName = iconResult[0].item.name;
       tempMissingIcons[key].fallbackScore = iconResult[0].score;
@@ -206,7 +206,7 @@ export async function ProductIcons({
 
 export function saveMissingIconData(missingIcons: MissingIcons) {
   fs.writeFile(
-    "./app/lib/icons/missingIcons.json",
+    "./missingIcons.json",
     JSON.stringify(missingIcons),
     "utf-8"
   );
@@ -214,7 +214,7 @@ export function saveMissingIconData(missingIcons: MissingIcons) {
 
 export async function loadMissingIconData() {
   missingIcons = JSON.parse(
-    await fs.readFile("./app/lib/icons/missingIcons.json", { encoding: "utf8" })
+    await fs.readFile("./missingIcons.json", { encoding: "utf8" })
   );
   return missingIcons;
 }

@@ -296,6 +296,7 @@ div.skeleton-wrap {
     margin-left: 0.3em;
     margin-top: 0.3em;
     display: inline-block;
+    white-space: nowrap;
   }
 
   .card-title a {
@@ -397,6 +398,19 @@ div.skeleton-wrap {
     100% {
       opacity: 0.5;
     }
+  }
+
+  @media (max-width:576px) {
+    .card-title {
+      overflow-x: hidden;
+      text-indent: -134px;
+    }
+
+    .card-indicator {
+      top: -11px;
+      right: 4.5px;
+    }
+
   }
 }
 

@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { IconMark, TitleMark, TypeMark } from "../lib/assets/logos";
-import { SearchBar } from "./search/[searchQuery]/searchBar";
 import { Icon, InteractiveIcon } from "../lib/icons/ui-icons";
 import React, { useRef, useEffect } from "react";
 import ClickOutside from "../lib/utils/ClickOutside";
 import Link from "next/link";
 import { MW_URL } from "../lib/definitions";
 import { useParams, usePathname } from "next/navigation";
+import { NavSearchBar } from "./search/[searchQuery]/navSearchBar";
 
 export default function NavBar() {
   const params = useParams<{ searchQuery: string }>();
@@ -45,10 +45,10 @@ export default function NavBar() {
 
   return (
     <div className="sticky w-100 h-min -mb-1.5 z-10">
-      <div className="h-14 b border-b-black border-b-6 flex flex-nowrap">
+      <div className="flex h-14 b border-b-black border-b-6 flex-nowrap">
         <TypeMark className="h-full p-2.5 ml-2" />
         <div
-          className="w-full justify-self-end flex flex-nowrap justify-end"
+          className="flex justify-end w-full justify-self-end flex-nowrap"
           ref={menuButtonRef}
         >
           {path.includes("/search") ? (
@@ -58,7 +58,7 @@ export default function NavBar() {
               name={isSearchOpen ? "search-open" : "search"}
               onClick={() => toggleSearch()}
               className={
-                "cursor-pointer aspect-square h-full aspect-square " +
+                "cursor-pointer h-full aspect-square " +
                 (isSearchOpen ? "p-1" : "p-1.5")
               }
             />
@@ -66,7 +66,7 @@ export default function NavBar() {
           <InteractiveIcon
             name={isMenuOpen ? "menu-open" : "menu"}
             onClick={() => toggleMenu()}
-            className="cursor-pointer aspect-square h-full aspect-square p-1"
+            className="h-full p-1 cursor-pointer aspect-square"
           />
         </div>
       </div>
@@ -78,13 +78,7 @@ export default function NavBar() {
         ""
       )}
       {isSearchOpen || path.includes("/search") ? (
-        <SearchBar
-          searchQuery={params.searchQuery}
-          prompt=""
-          className="w-100 h-14 -top-1.5 border-y-black border-y-6 pl-1.5"
-          icon=""
-          button
-        />
+        <NavSearchBar searchQuery={params.searchQuery} />
       ) : (
         ""
       )}
@@ -104,20 +98,9 @@ function MenuDropdown({ className = "" }) {
   return <Dropdown items={menuItems} className="absolute right-0" />;
 }
 
-function Dropdown({
-  items,
-  className = "",
-}: {
-  items: { title: string; icon: string; href: string; p: string }[];
-  className?: string;
-}) {
+function Dropdown({ items, className = "", }: { items: { title: string; icon: string; href: string; p: string }[]; className?: string; }) {
   return (
-    <div
-      className={
-        className +
-        " b border-x-black border-x-6 flex flex-nowrap flex-col z-50 text-xl font-medium -pt-1.5"
-      }
-    >
+    <div className={className + " b border-x-black border-x-6 flex flex-nowrap flex-col z-50 text-xl font-medium -pt-1.5"} >
       {items.map((item) => {
         return (
           <div

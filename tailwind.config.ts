@@ -18,7 +18,7 @@ const config: Config = {
       blue: "#4E68C6",
     },
     screens: {
-      xs: "475px",
+      xs: "510px",
       ...defaultTheme.screens,
     },
     extend: {
@@ -43,6 +43,8 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require("@igorkowalczyk/is-browser")
+  ],
 };
 export default config;
