@@ -1,11 +1,11 @@
 import { ReactNode } from "react";
 
-const SEARCH_ITEM_CLASSNAME = ' shrink-0 h-52 grow relative max-w-128 text-xl font-medium first:-ml-1.5 last:-mr-1.5 min-w-64 ';
+const SEARCH_ITEM_CLASSNAME = 'col-span-1 justify-self-stretch relative h-52 text-xl font-medium first:-ml-1.5 min-w-64';
 
 export default function LoadingSearchResults() {
   // You can add any UI inside Loading, including a Skeleton.
   return (
-    <div className="flex flex-wrap items-stretch justify-start w-full content-stretch">
+    <div className="flex flex-col items-center justify-start w-full mb-8">
       <LoadingSearchRow />
       <LoadingSearchRow />
       <LoadingSearchRow />
@@ -18,16 +18,22 @@ export default function LoadingSearchResults() {
 export function LoadingSearchRow() {
   // You can add any UI inside Loading, including a Skeleton.
   return (
-    <div className="relative w-full overflow-y-hidden h-52">
-      <div className="flex flex-wrap items-stretch justify-start w-full content-stretch">
+    <div className="relative w-full overflow-y-visible h-52">
+      <div className="grid grid-flow-col justify-stretch justify-items-start grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 -mr-1.5">
         <BrandItemSkeleton />
-        <ReportItemSkeleton />
-        <ReportItemSkeleton />
-        <ReportItemSkeleton />
-        <ReportItemSkeleton />
-        <ReportItemSkeleton />
+        <ReportItemSkeleton index={0} />
+        <ReportItemSkeleton index={1} />
+        <ReportItemSkeleton index={2} />
+        <ReportItemSkeleton index={3} />
       </div>
     </div>
+  );
+}
+
+export function LoadingReports() {
+  // You can add any UI inside Loading, including a Skeleton.
+  return (
+        <><ReportItemSkeleton index={0} /><ReportItemSkeleton index={1} /><ReportItemSkeleton index={2} /><ReportItemSkeleton index={3} /></>
   );
 }
 
@@ -36,17 +42,23 @@ export function LoadingBrandItem() {
   return <BrandItemSkeleton />;
 }
 
-export function LoadingReportItem() {
+export function LoadingReportItem({index}:{index:number}) {
   // You can add any UI inside Loading, including a Skeleton.
-  return <ReportItemSkeleton />;
+  return <ReportItemSkeleton index={index} />;
 }
 
-function ReportItemSkeleton() {
+function ReportItemSkeleton({index}:{index:number}) {
+  var className = "";
+  if (index == 0) className = 'hidden xs:block';
+  else if (index == 1) className = 'hidden lg:block';
+  else if (index == 2) className = 'hidden xl:block';
+  else if (index == 3) className = 'hidden 2xl:block';
+
   return (
     <div
       className={
         SEARCH_ITEM_CLASSNAME +
-        "min-w-48 border-r-black border-r-6 border-b-black border-b-6 relative overflow-hidden text-ellipsis skeleton-wrap"
+        " min-w-48 border-r-black border-r-6 border-b-black border-b-6  relative overflow-x-hidden overflow-y-visible text-ellipsis skeleton-wrap " + className
       }
       style={{ animationDelay: "200ms" }}
     >
