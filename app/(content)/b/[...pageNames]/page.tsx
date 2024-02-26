@@ -60,6 +60,7 @@ async function BrandPage({ brandName }: { brandName: string }) {
                     </Suspense>
                 </ErrorBoundary>
             </div>
+            {brandData.references || brandData.importedReferences ? <BrandReferences brandData={brandData} /> : ''}
         </div>
     )
 }
@@ -96,6 +97,20 @@ function NoReportsFound({ brandName, brandUrlName }: { brandName: string, brandU
     )
 }
 
+async function BrandReferences({ brandData }: { brandData: BrandPage }) {
+    return (
+        <div style={{ columnWidth: '30em' }} className='w-full px-8 pt-8 pb-16 text-sm'>
+            {brandData.references ?
+                renderHTMLString("<p class='text-sm opacity-75 first:-mt-3.5'>References</p>" + brandData.references)
+                : ''}
+            {brandData.importedReferences ?
+                brandData.importedReferences.map(refs => {
+                    return renderHTMLString("<p class='text-sm opacity-75 mt-6 first:-mt-3.5'>Wikipedia References</p>" + refs)
+                }) : ''}
+            <div className='hidden first:-mt-3.5'></div>
+        </div>
+    );
+}
 
 async function BrandSummary({ brandData }: { brandData: BrandPage }) {
     return (

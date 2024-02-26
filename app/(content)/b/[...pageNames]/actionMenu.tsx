@@ -37,7 +37,7 @@ export default function ActionMenu({
       />
       <ClickOutside onClick={closeMenu}>
         {isMenuOpen ? (
-          <ActionDropdown className="absolute right-4" pageName={pageUrlName} />
+          <ActionDropdown className="absolute right-4" pageName={pageName} pageUrlName={pageUrlName} />
         ) : (
           ""
         )}
@@ -48,22 +48,24 @@ export default function ActionMenu({
 
 function ActionDropdown({
   pageName,
+  pageUrlName,
   className = "",
 }: {
   pageName: string;
+  pageUrlName: string;
   className?: string;
 }) {
   const items = [
     {
-      title: pageName.includes("/") ? "Edit Report" : "Edit Brand",
+      title: pageName.includes("/") ? "Edit Report" : "Edit Brand Page",
       icon: "edit-page",
-      href: MW_DIRECT_URL + "?title=" + pageName + "&veaction=edit",
+      href: MW_DIRECT_URL + "?title=" + encodeURIComponent(pageName) + "&veaction=edit",
       p: "0.5",
     },
     {
       title: "Open Discussion",
       icon: "discussion",
-      href: MW_DIRECT_URL + "?title=Talk:" + pageName + "",
+      href: MW_DIRECT_URL + "?title=Talk:" + encodeURIComponent(pageName) + "",
       p: "0.5",
     },
     // {title: 'Report Content', icon: 'report', href: MW_DIRECT_URL+'?title=Talk:'+pageName+'', p: '0.25'},
