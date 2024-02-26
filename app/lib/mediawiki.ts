@@ -343,6 +343,10 @@ function adoptLinks(htmlString: string): string {
 
 function fixReferenceIds(htmlString: string): string {
     const [start, ...splitStr] = htmlString.split('li id=\"');
+
+    if (!splitStr || splitStr.length == 0)
+        return htmlString;
+
     const fixedStr = splitStr.map(str => {
         const id = str.substring(0, str.indexOf('"'));
         return id + '" name="' + str;
