@@ -224,6 +224,7 @@ function parseWikipediaExcerpts(htmlString: string): string {
         // console.log('[Wikipedia Excerpt] Found excerpts: ', excerptSections.length);
 
         return beforeExcerpt + WE_HEADER + excerptSections.map((excerptSection, index) => {
+            excerptSection = excerptSection.substring(0, excerptSection.indexOf(BRAND_HTML_MAP.IMPORTED_REFERENCES.startToken));
             // Check paragraph classname
             var paragraphLength = Number(excerptSection.substring(excerptSection.indexOf('num-paragraphs-') + 'num-paragraphs-'.length, excerptSection.indexOf('\"')));
             if (paragraphLength == 0)
