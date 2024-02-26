@@ -223,8 +223,10 @@ function parseWikipediaExcerpts(htmlString: string): string {
         const [beforeExcerpt, ...excerptSections] = htmlString.split(WE_HEADER); // Split into each excerpt
         // console.log('[Wikipedia Excerpt] Found excerpts: ', excerptSections.length);
 
-        return beforeExcerpt + WE_HEADER + excerptSections.map((excerptSection, index) => {
-            excerptSection = excerptSection.substring(0, excerptSection.indexOf(BRAND_HTML_MAP.IMPORTED_REFERENCES.startToken));
+        return beforeExcerpt + WE_HEADER + excerptSections.map((rawExcerptSection, index) => {
+            const [beforeRefs, afterRefs] = rawExcerptSection.split(BRAND_HTML_MAP.IMPORTED_REFERENCES.startToken);
+            const excerptSection = beforeRefs + afterRefs.substring(afterRefs.indexOf(BRAND_HTML_MAP.IMPORTED_REFERENCES.endToken) + BRAND_HTML_MAP.IMPORTED_REFERENCES.endToken.length);
+
             // Check paragraph classname
             var paragraphLength = Number(excerptSection.substring(excerptSection.indexOf('num-paragraphs-') + 'num-paragraphs-'.length, excerptSection.indexOf('\"')));
             if (paragraphLength == 0)
