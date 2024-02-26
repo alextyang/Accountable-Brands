@@ -99,7 +99,7 @@ function NoReportsFound({ brandName, brandUrlName }: { brandName: string, brandU
 
 async function BrandReferences({ brandData }: { brandData: BrandPage }) {
     return (
-        <div style={{ columnWidth: '30em' }} className='w-full px-8 pt-8 pb-16 text-sm'>
+        <div style={{ columnWidth: '30em' }} className='w-full px-8 pt-8 pb-12 text-sm'>
             {brandData.references ?
                 renderHTMLString("<p class='text-sm opacity-75 first:-mt-3.5'>References</p>" + brandData.references)
                 : ''}
