@@ -100,7 +100,6 @@ export async function fetchBrandPage(pageName: string, revalidate?: boolean): Pr
 
     const datatableHTMLString = locateParam(pageResponse, BRAND_HTML_MAP.DATATABLE); // Separate data
     // if (DEBUG) { console.log('[MediaWiki] Recieved string: ', {pageResponse}); }
-    // console.log('[MediaWiki] Recieved string: ', pageResponse);
     const logoUrl = locateParam(datatableHTMLString, BRAND_HTML_MAP.LOGO_URL);
     const coverUrl = locateParam(datatableHTMLString, BRAND_HTML_MAP.COVER_URL);
 
@@ -129,7 +128,7 @@ export async function fetchBrandPage(pageName: string, revalidate?: boolean): Pr
             }).splice(1),
     };
 
-    console.log('[MediaWiki] Interpreted page data: ', pageData);
+    if (DEBUG) console.log('[MediaWiki] Interpreted page data: ', pageData);
     return pageData;
 }
 
@@ -221,17 +220,22 @@ const WE_END = 'class=\"card-border';
 function parseWikipediaExcerpts(htmlString: string): string {
     if (htmlString.includes(WE_HEADER)) {
         const [beforeExcerpt, ...excerptSections] = htmlString.split(WE_HEADER); // Split into each excerpt
-        // console.log('[Wikipedia Excerpt] Found excerpts: ', excerptSections.length);
+
+        if (DEBUG) console.log('[Wikipedia Excerpt] Found excerpts: ', excerptSections.length);
 
         return beforeExcerpt + WE_HEADER + excerptSections.map((rawExcerptSection, index) => {
             const [beforeRefs, afterRefs] = rawExcerptSection.split(BRAND_HTML_MAP.IMPORTED_REFERENCES.startToken);
-            const excerptSection = beforeRefs + afterRefs.substring(afterRefs.indexOf(BRAND_HTML_MAP.IMPORTED_REFERENCES.endToken) + BRAND_HTML_MAP.IMPORTED_REFERENCES.endToken.length);
+            var excerptSection;
+            if (!afterRefs)
+                excerptSection = beforeRefs;
+            else
+                excerptSection = beforeRefs + afterRefs.substring(afterRefs.indexOf(BRAND_HTML_MAP.IMPORTED_REFERENCES.endToken) + BRAND_HTML_MAP.IMPORTED_REFERENCES.endToken.length);
 
             // Check paragraph classname
             var paragraphLength = Number(excerptSection.substring(excerptSection.indexOf('num-paragraphs-') + 'num-paragraphs-'.length, excerptSection.indexOf('\"')));
             if (paragraphLength == 0)
                 paragraphLength = -1;
-            // console.log('[Wikipedia Excerpt] Paragraph length ', paragraphLength);
+            if (DEBUG) console.log('[Wikipedia Excerpt] Paragraph length ', paragraphLength);
 
             const [excerpt, ...afterExcerpts] = excerptSection.split(WE_END);
             const [beforeP, ...pTags] = excerpt.split('<p');
