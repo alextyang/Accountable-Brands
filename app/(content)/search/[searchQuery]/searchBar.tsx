@@ -35,7 +35,7 @@ export function HomeSearchBar() {
 
   const submitSearch = () => {
     if (searchInput && searchInput != "") {
-      const params = encodeURI(searchInput);
+      const params = encodeURIComponent(searchInput);
       if (DEBUG) { console.log("[Search] Pushing URL: \n" + "/search/" + params); }
       router.push("/search/" + params);
     }

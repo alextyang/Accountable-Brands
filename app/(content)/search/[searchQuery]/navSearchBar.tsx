@@ -42,7 +42,7 @@ export function NavSearchBar({ searchQuery = "", }: { searchQuery?: string; }) {
 
   const submitSearch = () => {
     if (searchInput && searchInput != "") {
-      const params = encodeURI(searchInput);
+      const params = encodeURIComponent(searchInput);
       if (DEBUG) { console.log("[Search] Pushing URL: \n" + "/search/" + params); }
       router.push("/search/" + params);
     }

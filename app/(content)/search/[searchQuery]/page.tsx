@@ -7,7 +7,7 @@ import LoadingSearchResults from "./loading";
 export default function Page({ params }: { params: { searchQuery: string } }) {
   // const searchParam = useSearchParams().get('q');
   // const [searchQuery, setSearchQuery] = useState(searchParam ? searchParam : '');
-  const searchQuery = decodeURI(params.searchQuery).replaceAll("+", " ");
+  const searchQuery = decodeURIComponent(params.searchQuery);
 
   return (
     <main className="relative flex flex-col">
