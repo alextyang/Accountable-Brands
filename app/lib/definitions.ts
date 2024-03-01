@@ -41,6 +41,8 @@ export type BrandPage = { // Structure of parsed Company/Organization page
     products?: string,
     industry?: string,
     description?: string,
+    references?: string,
+    importedReferences?: string[],
     reportNames: string[]
     reportPages?: ReportPage[]
 }

@@ -74,6 +74,16 @@ const BRAND_HTML_MAP = { // Company/Organization page HTML structure
         startToken: "<span class=\"mw-headline\" id=\"Reports\">",
         endToken: "</ul>",
     },
+
+    REFERENCES: {
+        startToken: "<div class=\"mw-references-wrap\">",
+        endToken: "</div>",
+    },
+
+    IMPORTED_REFERENCES: {
+        startToken: "<div class=\"mw-references-wrap mw-references-columns\">",
+        endToken: "</div>",
+    },
 }
 
 export async function fetchBrandPages(pageNames: string[]): Promise<BrandPage[]> {
@@ -89,7 +99,8 @@ export async function fetchBrandPage(pageName: string, revalidate?: boolean): Pr
         status = pageResponse;
 
     const datatableHTMLString = locateParam(pageResponse, BRAND_HTML_MAP.DATATABLE); // Separate data
-    if (DEBUG) { console.log('[MediaWiki] Recieved string: '); console.log({ pageResponse }); }
+    // if (DEBUG) { console.log('[MediaWiki] Recieved string: ', {pageResponse}); }
+    // console.log('[MediaWiki] Recieved string: ', pageResponse);
     const logoUrl = locateParam(datatableHTMLString, BRAND_HTML_MAP.LOGO_URL);
     const coverUrl = locateParam(datatableHTMLString, BRAND_HTML_MAP.COVER_URL);
 
@@ -110,13 +121,15 @@ export async function fetchBrandPage(pageName: string, revalidate?: boolean): Pr
         brands: adoptLinks(locateParam(datatableHTMLString, BRAND_HTML_MAP.BRANDS)),
         products: locateParam(datatableHTMLString, BRAND_HTML_MAP.PRODUCTS),
         description: parseWikipediaExcerpts(recontextualizeLinks(locateParam(pageResponse, BRAND_HTML_MAP.SUMMARY))),
+        references: fixReferenceIds(locateParam(pageResponse, BRAND_HTML_MAP.REFERENCES)),
+        importedReferences: locateParams(pageResponse, BRAND_HTML_MAP.IMPORTED_REFERENCES).map(str => { return fixReferenceIds(str) }),
         reportNames: locateParam(pageResponse, BRAND_HTML_MAP.REPORTS).split("title=\"")
             .map((str) => {
                 return str.substring(0, str.indexOf("\""));
             }).splice(1),
     };
 
-    if (DEBUG) { console.log('[MediaWiki] Interpreted page data: '); console.log(pageData); }
+    // console.log('[MediaWiki] Interpreted page data: ', pageData);
     return pageData;
 }
 
@@ -192,6 +205,16 @@ function locateParam(htmlString: string, paramLoc: HTMLStringLocation): string {
     ).trim();
 }
 
+function locateParams(htmlString: string, paramLoc: HTMLStringLocation): string[] {
+    const [first, ...splitStr] = htmlString.split(paramLoc.startToken);
+    if (splitStr && splitStr.length > 0) {
+        return splitStr.map(str => {
+            return locateParam(paramLoc.startToken + str, paramLoc);
+        });
+    }
+    return [];
+}
+
 const WE_HEADER = 'class=\"card wikipedia-excerpt';
 const WE_END = 'class=\"card-border';
 
@@ -200,7 +223,10 @@ function parseWikipediaExcerpts(htmlString: string): string {
         const [beforeExcerpt, ...excerptSections] = htmlString.split(WE_HEADER); // Split into each excerpt
         // console.log('[Wikipedia Excerpt] Found excerpts: ', excerptSections.length);
 
-        return beforeExcerpt + WE_HEADER + excerptSections.map((excerptSection, index) => {
+        return beforeExcerpt + WE_HEADER + excerptSections.map((rawExcerptSection, index) => {
+            const [beforeRefs, afterRefs] = rawExcerptSection.split(BRAND_HTML_MAP.IMPORTED_REFERENCES.startToken);
+            const excerptSection = beforeRefs + afterRefs.substring(afterRefs.indexOf(BRAND_HTML_MAP.IMPORTED_REFERENCES.endToken) + BRAND_HTML_MAP.IMPORTED_REFERENCES.endToken.length);
+
             // Check paragraph classname
             var paragraphLength = Number(excerptSection.substring(excerptSection.indexOf('num-paragraphs-') + 'num-paragraphs-'.length, excerptSection.indexOf('\"')));
             if (paragraphLength == 0)
@@ -258,7 +284,7 @@ async function fetchPageHTMLString(pageName: string, forceRevalidate?: boolean):
                 return response.json() as Promise<MWPageResponse>
             })
         // console.log('[MediaWiki] Page fetch completed.');
-        // if (DEBUG) console.log('[MediaWiki] Found page HTML: ',data.parse.text['*']);
+        if (DEBUG) console.log('[MediaWiki] Found page HTML: ', data.parse.text['*']);
 
         return WIKI_HTML_MAP.ID.startToken + data.parse.pageid + WIKI_HTML_MAP.ID.endToken + WIKI_HTML_MAP.TITLE.startToken + data.parse.title + WIKI_HTML_MAP.TITLE.endToken + data.parse.text['*']; // embed received metadata in page HTML
 
@@ -290,12 +316,12 @@ export async function fetchPagePlainText(pageName: string, forceRevalidate?: boo
             explaintext: 'true'
         });
 
-        // if (DEBUG) console.log('[MediaWiki] Fetching previews for \''+pageName+'\' - '+`${MW_URL}/w/api.php?${params}`);
+        if (DEBUG) console.log('[MediaWiki] Fetching previews for \'' + pageName + '\' - ' + `${MW_URL}/w/api.php?${params}`);
         const data = await fetch(`${MW_URL}/w/api.php?${params}`, { next: { revalidate: forceRevalidate ? 0 : REVALIDATE_INTERVAL } })
             .then(function (response) {
                 return response.json() as Promise<MWTextExtResponse>
             })
-        // if (DEBUG) console.log('[MediaWiki] Preview fetch completed:',Object.values(data.query.pages)[0].extract);
+        if (DEBUG) console.log('[MediaWiki] Preview fetch completed:', Object.values(data.query.pages)[0].extract);
 
         return Object.values(data.query.pages)[0].extract; // Plain text preview
 
@@ -313,6 +339,21 @@ function recontextualizeLinks(htmlString: string): string { // fixes mediawiki-s
 
 function adoptLinks(htmlString: string): string {
     return htmlString.replaceAll('/w/', B_URL + '/b/');
+}
+
+function fixReferenceIds(htmlString: string): string {
+    const [start, ...splitStr] = htmlString.split('li id=\"');
+
+    if (!splitStr || splitStr.length == 0)
+        return htmlString;
+
+    const fixedStr = splitStr.map(str => {
+        const id = str.substring(0, str.indexOf('"'));
+        return id + '" name="' + str;
+    }).join('li id=\"');
+
+    // console.log(fixedStr);
+    return start + 'li id=\"' + fixedStr;
 }
 
 

@@ -43,7 +43,7 @@ export default function Footer() {
   const [pageDisclaimer, setPageDisclaimer] = useState(baseFooterLinks);
 
   return (
-    <div className="flex flex-col w-full h-full px-5 py-5 mt-auto text-base bg-black min-h-52 text-tan">
+    <div className="flex flex-col justify-self-end mt-auto w-full h-full px-5 py-5 text-base bg-black min-h-52 text-tan">
       <div className="flex flex-row flex-wrap justify-between w-full gap-y-2 whitespace-nowrap">
         <FooterLinksSection />
         <SocialLinksSection />

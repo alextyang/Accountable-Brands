@@ -11,6 +11,7 @@ export default function Page({ params }: { params: { searchQuery: string } }) {
 
   return (
     <main className="relative flex flex-col">
+      {/* <LoadingSearchResults /> */}
       <ErrorBoundary errorComponent={SearchError}>
         <Suspense fallback={<LoadingSearchResults />}>
           {searchQuery && searchQuery != "" ? (

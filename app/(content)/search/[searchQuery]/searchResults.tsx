@@ -5,7 +5,7 @@ import { Icon } from '@/app/lib/icons/ui-icons';
 import { IndustryIcon } from '@/app/lib/icons/dynamicIcons';
 import { fetchBrandPage, fetchReportPages, searchBrands } from '@/app/lib/mediawiki';
 import Link from 'next/link';
-import { LoadingBrandItem, LoadingReportItem, LoadingSearchRow } from './loading';
+import { LoadingBrandItem, LoadingReportItem, LoadingReports, LoadingSearchRow } from './loading';
 
 
 export default async function SearchResults({ searchQuery, pageNumber = 0, resultCount = 10, className = "" }: { searchQuery: string, pageNumber?: number, resultCount?: number, className?: string, debug?: boolean }) {
@@ -36,7 +36,7 @@ async function SearchResultRow({ brandName }: { brandName: string }) {
     return '';
 
   //TODO Intelligent report sorting
-  brandData.reportNames.splice(3);
+  brandData.reportNames.splice(4);
 
   return (
     <div className='relative w-full overflow-hidden h-52'>
@@ -52,14 +52,16 @@ async function SearchResultRow({ brandName }: { brandName: string }) {
         </div>
       </Link>
 
-      <div className={'grid grid-flow-col justify-stretch justify-items-start grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 -mr-1.5'}>
+      <div className={'grid grid-flow-col justify-stretch justify-items-start grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 -mr-1.5'}>
 
         <Suspense fallback={LoadingBrandItem()}>
           {brandData ? (<BrandSearchItem brandData={brandData} />) : ''}
         </Suspense>
-        {(brandData.reportNames) ? (brandData.reportNames.map((reportName, index) => (<Suspense key={reportName} fallback={LoadingReportItem()}>
-          <ReportSearchItem key={reportName} reportName={reportName} index={index} />
-        </Suspense>))) : ''}
+        <Suspense fallback={LoadingReports()}>
+          {(brandData.reportNames) ? (brandData.reportNames.map((reportName, index) => (
+            <ReportSearchItem key={reportName} reportName={reportName} index={index} />
+          ))) : ''}
+        </Suspense>
 
       </div>
     </div>
@@ -95,6 +97,7 @@ async function ReportSearchItem({ reportName, index }: { reportName: string, ind
   if (index == 0) className = 'hidden xs:block';
   else if (index == 1) className = 'hidden lg:block';
   else if (index == 2) className = 'hidden xl:block';
+  else if (index == 3) className = 'hidden 2xl:block';
 
   return (
     <div className={SEARCH_ITEM_className + ' border-r-black border-r-6 border-b-black border-b-6 relative overflow-hidden text-ellipsis ' + className}>

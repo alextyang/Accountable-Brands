@@ -309,6 +309,7 @@ div.skeleton-wrap {
     margin: .5em;
     margin-left: 0.3em;
     margin-top: -1em;
+    padding-bottom: 0.2em;
   }
 
   .card-content img {
@@ -442,4 +443,28 @@ html.skin-citizen-dark .card-icon {
   height: 0;
   overflow: hidden;
   margin-top: 0;
+}
+
+/* References */
+ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+}
+
+li {
+  margin-top: 0.7rem;
+  padding-left: 0.5rem;
+}
+
+li:target,
+sup:target {
+  background-color: rgba(62, 91, 193, 0.3);
+}
+
+cite {
+  font-style: normal !important;
+}
+
+li a {
+  color: #3E5BC1;
 }

@@ -32,7 +32,15 @@ export var missingIcons: MissingIcons = {};
 export const LOW_SCORE_CUTOFF = 0.3;
 export const HIGH_SCORE_CUTOFF = 0.1;
 
-const fuseOptions = {
+const fuseIndustryOptions = {
+  shouldSort: true,
+  includeScore: true,
+  ignoreLocation: false,
+  ignoreFieldNorm: true,
+  useExtendedSearch: true,
+  keys: ["name"],
+};
+const fuseProductOptions = {
   shouldSort: true,
   includeScore: true,
   ignoreLocation: true,
@@ -40,7 +48,8 @@ const fuseOptions = {
   // useExtendedSearch: true,
   keys: ["name"],
 };
-const fuse = new Fuse(industryIcons, fuseOptions);
+const fuseIndustrySearch = new Fuse(industryIcons, fuseIndustryOptions);
+const fuseProductsSearch = new Fuse(industryIcons, fuseProductOptions);
 
 export async function ProductIcons({
   className = "",
@@ -64,13 +73,14 @@ export async function ProductIcons({
     excludeIndustryRaw.lastIndexOf(">") + 1,
     excludeIndustryRaw.lastIndexOf("<")
   );
-  const industryIcon = fuse.search(excludeIndustry)[0];
+  const industrySearch = fuseIndustrySearch.search("\""+excludeIndustry+"\"")[0];
+  const industryIcon = industrySearch && industrySearch.score && industrySearch.score < LOW_SCORE_CUTOFF ? industrySearch : undefined;
   let productIconResults: IndustryIcon[] = [];
   let savedQueries: string[] = [];
   let madeChanges = false;
 
   names.map((name) => {
-    let iconResult = fuse.search(name);
+    let iconResult = fuseProductsSearch.search(name);
     const key = name;
 
     const isNewSearch = !missingIcons[key] || missingIcons[key].age > 100;
@@ -122,7 +132,7 @@ export async function ProductIcons({
 
         iconResult.shift();
       } else if (
-        industryIcon.item &&
+        industryIcon && industryIcon.item &&
         industryIcon.item.name == iconResult[0].item.name
       ) {
         const index = productIconResults.indexOf(iconResult[0].item);
@@ -229,11 +239,11 @@ export function IndustryIcon({
   color?: string;
 }) {
   var iconName = name.substring(name.indexOf(">") + 1, name.lastIndexOf("<"));
-  const iconSearch = fuse.search(iconName);
+  const iconSearch = fuseIndustrySearch.search("\""+iconName+"\"");
   if (DEBUG)
     console.log("[IconSearch] Searching for industry icon " + iconName + ": ");
-  if (DEBUG) console.log(fuse.search(iconName.replaceAll(" ", "|")));
-  const iconSearchResult = iconSearch[0]
+  if (DEBUG) console.log(fuseIndustrySearch.search("\""+iconName+"\""));
+  const iconSearchResult = iconSearch[0] && iconSearch[0].score && iconSearch[0].score < LOW_SCORE_CUTOFF
     ? iconSearch[0].item
     : DEFAULT_INDUSTRY_ICON;
 
