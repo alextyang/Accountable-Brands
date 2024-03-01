@@ -129,7 +129,7 @@ export async function fetchBrandPage(pageName: string, revalidate?: boolean): Pr
             }).splice(1),
     };
 
-    // console.log('[MediaWiki] Interpreted page data: ', pageData);
+    console.log('[MediaWiki] Interpreted page data: ', pageData);
     return pageData;
 }
 
@@ -184,7 +184,7 @@ export async function fetchReportPages(pageNames: string[], revalidate?: boolean
             };
         }
     );
-    // if (DEBUG) { console.log('[MediaWiki] Interpreted reports as: '); reportPageDatas.map(item => console.log(item)); }
+    if (DEBUG) { console.log('[MediaWiki] Interpreted reports as: '); reportPageDatas.map(item => console.log(item)); }
 
 
 
@@ -284,7 +284,7 @@ async function fetchPageHTMLString(pageName: string, forceRevalidate?: boolean):
                 return response.json() as Promise<MWPageResponse>
             })
         // console.log('[MediaWiki] Page fetch completed.');
-        if (DEBUG) console.log('[MediaWiki] Found page HTML: ', data.parse.text['*']);
+        // if (DEBUG) console.log('[MediaWiki] Found page HTML: ', data.parse.text['*']);
 
         return WIKI_HTML_MAP.ID.startToken + data.parse.pageid + WIKI_HTML_MAP.ID.endToken + WIKI_HTML_MAP.TITLE.startToken + data.parse.title + WIKI_HTML_MAP.TITLE.endToken + data.parse.text['*']; // embed received metadata in page HTML
 
@@ -384,7 +384,7 @@ export async function searchBrands(options: { query: string, resultCount: number
                 return response.json() as Promise<MWSearchResults>
             })
 
-        if (DEBUG) { console.log('[MediaWiki] Raw search response: '); console.log(data); }
+        // if (DEBUG) { console.log('[MediaWiki] Raw search response: '); console.log(data); }
         if (DEBUG) { console.log('[MediaWiki] Iterpreted as: '); console.log(data.query.search.map(item => item.title)); }
 
         const searchRes = data.query.search.map(item => item.title);
