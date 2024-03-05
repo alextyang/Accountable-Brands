@@ -5,30 +5,17 @@
 :root {
   --foreground-rgb: #07090F;
   --background-rgb: #D8C1AC;
-  /* --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255; */
 }
 
-/* @media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
-} */
 
 body {
   color: var(--foreground-rgb);
   background: var(--background-rgb);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb)); */
 }
+
+/* Input Box */
 
 /* Remove input corner radius  */
 input[type=search],
@@ -37,7 +24,7 @@ input[type=button] {
   -webkit-border-radius: 0;
 }
 
-/* Remove input ‘X’ */
+/* Remove input X */
 input[type=search]::-ms-clear {
   display: none;
   width: 0;
@@ -57,7 +44,7 @@ input[type="search"]::-webkit-search-results-decoration {
   display: none;
 }
 
-/* Remove input focus outline */
+/* Remove input focus outline TODO: replace with border */
 input:focus,
 input.form-control:focus {
   outline: none !important;
@@ -69,34 +56,41 @@ input.form-control:focus {
 }
 
 /* input placeholder color */
-
 input::placeholder {
   color: var(--foreground-rgb);
   opacity: 0.45;
   /* Firefox */
 }
 
+
+/* Icons */
+
 .icon-svg>svg {
   width: 100%;
   height: 100%;
 }
 
-.text-pretty a {
+
+/* Links */
+
+.underline-links a {
   /* cursor: alias; */
   text-decoration: underline;
   text-underline-offset: 1.5px;
 }
 
-.text-pretty a.new {
+.underline-links a.new {
   /* cursor: alias; */
   text-decoration: none;
   pointer-events: none;
 }
 
+
+/* Report Modal */
+
 body:has(.report-content) {
   overflow: hidden;
 }
-
 
 .report-container:has(.report-content) {
   overflow-y: scroll;
@@ -135,6 +129,8 @@ body:has(.report-content) {
 }
 
 
+/* MediaWiki SVG Styles */
+
 .petals--rear {
   opacity: 0.02;
 }
@@ -163,6 +159,8 @@ body:has(.report-content) {
   opacity: 0.65;
 }
 
+
+/* Loading Skeletons */
 
 div.skeleton-wrap {
   opacity: 0.5;
@@ -207,6 +205,7 @@ div.skeleton-wrap {
 }
 
 
+/* Brand Summary */
 
 .brand-content {
   p {
@@ -233,10 +232,9 @@ div.skeleton-wrap {
 }
 
 
-
+/* MediaWiki Cards */
 
 .card {
-  /* border-left: 1em solid #a2a9b1; */
   box-sizing: border-box;
   break-inside: avoid;
   overflow: visible;
@@ -261,6 +259,21 @@ div.skeleton-wrap {
   float: right;
 }
 
+
+/* Wikipedia Excerpt */
+
+.wikipedia-excerpt .error,
+.infobox,
+.navigation-not-searchable {
+  display: none;
+}
+
+.wikipedia-excerpt .mw-references-wrap {
+  height: 0;
+  overflow: hidden;
+  margin-top: 0;
+}
+
 .wikipedia-excerpt {
 
   .references,
@@ -270,7 +283,6 @@ div.skeleton-wrap {
   }
 
   .card-icon {
-    /* background-color: var(--foreground-rgb); */
     float: left;
     margin-top: 0.3em;
     margin-right: 0.3em;
@@ -343,25 +355,19 @@ div.skeleton-wrap {
   }
 
 
-
   /* Live Excerpt Indicator */
 
   .card-indicator {
-    /* float: right; */
     display: inline-block;
     position: relative;
     width: 40px;
     height: 14px;
-    /* background-color: #BF211E; */
     top: 3.5px;
     right: 8px;
-    /* top:10px;
-    right:50px; */
     opacity: 0.65;
   }
 
   .pulse {
-    /* background-color: var(--background-rgb); */
     background-color: #458A2D;
     border-radius: 50%;
     height: 8px;
@@ -375,14 +381,9 @@ div.skeleton-wrap {
   }
 
   .circle::after {
-    /* content:'Live'; */
     font-weight: 500;
-    /* font-size: 11px; */
     line-height: 12px;
-    /* color: var(--background-rgb); */
-    /* color: #BF211E; */
     position: absolute;
-    /* top:0.75px; */
     left: 15px;
 
   }
@@ -411,41 +412,30 @@ div.skeleton-wrap {
       top: -11px;
       right: 4.5px;
     }
-
   }
 }
 
 
-/**
-   * Dark mode
-   */
-html.skin-citizen-dark .card {
-  background: #303134;
-  border-color: #3c4043;
-  color: #bdc1c6;
-}
-
-html.skin-citizen-dark .card-icon {
-  filter: invert(1);
-}
 
 
+/* Possible dark mode */
+/* html.skin-citizen-dark .card {
+      background: #303134;
+      border-color: #3c4043;
+      color: #bdc1c6;
+    }
+
+    html.skin-citizen-dark .card-icon {
+      filter: invert(1);
+    } */
 
 
-/* Interwiki inclusion modifications */
-.wikipedia-excerpt .error,
-.infobox,
-.navigation-not-searchable {
-  display: none;
-}
 
-.wikipedia-excerpt .mw-references-wrap {
-  height: 0;
-  overflow: hidden;
-  margin-top: 0;
-}
+
+
 
 /* References */
+
 ol {
   list-style-type: decimal;
   padding-left: 1.5rem;

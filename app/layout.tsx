@@ -1,14 +1,15 @@
 import type { Metadata } from 'next'
-// import { Inter } from 'next/font/google'
 import localFont from 'next/font/local'
 import './globals.css'
 
-// const inter = Inter({ subsets: ['latin'] })
+// Import local fonts for
+// title
 const gabriella = localFont({
   src: './lib/fonts/gabriella.woff2',
   display: 'swap',
   variable: '--font-gabriella'
 })
+// text
 const owners = localFont({
   src: [
     {
@@ -36,10 +37,10 @@ const owners = localFont({
   variable: '--font-owners'
 })
 
-
+// SEO site metadata
 export const metadata: Metadata = {
-  title: 'Brands - An Accountability Database',
-  description: '',
+  title: 'Accountable Brands',
+  description: 'Open-source platform for tracking the misleading claims and shady practices of household brands.',
 }
 
 export default function RootLayout({
@@ -49,7 +50,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${owners.variable} ${gabriella.variable} font-sans min-h-screen`}>{children}</body>
+      <body className={`${owners.variable} font-sans min-h-screen`}>{children}</body>
     </html>
   )
 }

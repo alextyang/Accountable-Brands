@@ -110,7 +110,7 @@ export function ReportGrid({ reports }: { reports: ReportPage[] }) {
   };
 
   return (
-    <div className="h-full">
+    <div className="h-full underline-links">
       <div
         ref={gridRef}
         className="relative flex flex-row flex-wrap h-full mt-1 -m-2 justify-stretch"

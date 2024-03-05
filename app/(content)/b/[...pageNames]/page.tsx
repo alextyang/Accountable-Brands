@@ -161,7 +161,7 @@ async function BrandSummary({ brandData }: { brandData: BrandPage }) {
                         </div>
                     </div>
                 </div>
-                <div className=' w-11/12  max-w-[1800px] flex flex-row -mr-2 md:mr-0 pl-2 md:px-2 pt-6'> {/* Description & Sub-Brand Logos */}
+                <div className='underline-links w-11/12  max-w-[1800px] flex flex-row -mr-2 md:mr-0 pl-2 md:px-2 pt-6'> {/* Description & Sub-Brand Logos */}
                     <div className='relative w-full text-base brand-content lg:w-2/3 add-text-shadow'> {/* Description */}
                         {/* <div className="absolute opacity-75 bg-tan -z-10 -top-1 -bottom-5 -right-5 -left-5"></div> */}
                         {renderHTMLString(brandData.description)}
