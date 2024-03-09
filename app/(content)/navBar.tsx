@@ -4,7 +4,7 @@ import { useState } from "react";
 import { IconMark, TitleMark, TypeMark } from "../lib/assets/logos";
 import { Icon, InteractiveIcon } from "../lib/icons/ui-icons";
 import React, { useRef, useEffect } from "react";
-import ClickOutside from "../lib/utils/ClickOutside";
+import ClickOutside from "../lib/utils/clickOutside";
 import Link from "next/link";
 import { MW_URL } from "../lib/definitions";
 import { useParams, usePathname } from "next/navigation";

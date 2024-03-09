@@ -12,7 +12,7 @@ import {
   PATREON_LINK,
   TWITTER_LINK,
 } from "../lib/definitions";
-import { CCIcons, ServiceIcon } from "../lib/icons/ui-icons";
+import { CCIcons, SocialIcon } from "../lib/icons/ui-icons";
 import { TanIconMark } from "../lib/assets/logos";
 
 type FooterLinkList = { header: string; links: string[]; hrefs: string[] }[];
@@ -123,16 +123,16 @@ function SocialLinksSection() {
   return (
     <div className=" flex flex-row justify-end ml-auto items-start gap-4 px-2.5 mt-4 lg:mt-1.5">
       <Link href={FACEBOOK_LINK}>
-        <ServiceIcon className={iconStyle} name="facebook" color="#D8C1AC" />
+        <SocialIcon className={iconStyle} name="facebook" color="#D8C1AC" />
       </Link>
       <Link href={INSTAGRAM_LINK}>
-        <ServiceIcon className={iconStyle} name="instagram" color="#D8C1AC" />
+        <SocialIcon className={iconStyle} name="instagram" color="#D8C1AC" />
       </Link>
       <Link href={TWITTER_LINK}>
-        <ServiceIcon className={iconStyle} name="twitter" color="#D8C1AC" />
+        <SocialIcon className={iconStyle} name="twitter" color="#D8C1AC" />
       </Link>
       <Link href={PATREON_LINK}>
-        <ServiceIcon className={iconStyle} name="patreon" color="#D8C1AC" />
+        <SocialIcon className={iconStyle} name="patreon" color="#D8C1AC" />
       </Link>
     </div>
   );

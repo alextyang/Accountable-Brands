@@ -1,4 +1,9 @@
+// MediaWiki API Interface
 
+import { B_URL, BrandPage, DEBUG, MW_URL, ReportPage, SIMULATE_LAG, REVALIDATE_INTERVAL, REPORT_TYPES } from './definitions'
+
+
+// HTML Rendering
 import parseHTML from 'html-react-parser';
 import DOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
@@ -6,30 +11,27 @@ import { JSDOM } from 'jsdom';
 const window = new JSDOM('').window;
 const purifyHTML = DOMPurify(window);
 
-
 function renderHTMLString(str?: string): string | JSX.Element | JSX.Element[] {
     return parseHTML(purifyHTML.sanitize(str ? str : ''));
 }
 
-import { B_URL, BrandPage, DEBUG, MW_URL, ReportPage, SIMULATE_LAG, REVALIDATE_INTERVAL, REPORT_TYPES } from './definitions'
 
 
-
-type HTMLStringLocation = { // Utility type for parsing MediaWiki pages
+// Utility type for parsing MediaWiki pages
+type HTMLStringLocation = {
     startToken: string,
     endToken: string,
     lastOccurance?: boolean
 }
 
-const WIKI_HTML_MAP = { // Basic page information spots
+// HTML Scraper: Embedded API Info
+const WIKI_HTML_MAP = {
     ID: { startToken: "<!-- dbpageid: ", endToken: "bpid--> " },
     TITLE: { startToken: "<!-- dbpagetitle: ", endToken: "bpt--> " },
 };
 
-
-
-
-const BRAND_HTML_MAP = { // Company/Organization page HTML structure
+// HTML Scraper: Brand page
+const BRAND_HTML_MAP = {
     DATATABLE: {
         startToken: "<table class=\"mw-capiunto-infobox brand-page-infobox\"",
         endToken: "</table>"
@@ -86,12 +88,94 @@ const BRAND_HTML_MAP = { // Company/Organization page HTML structure
     },
 }
 
+// HTML Scraper: Report page
+const REPORT_HTML_MAP = {
+    DATATABLE: {
+        startToken: "<table class=\"mw-capiunto-infobox report-page-infobox\"",
+        endToken: "</table>"
+    },
+    TYPE: {
+        startToken: "class=\"report-md-type-div\">",
+        endToken: "</td></tr><tr><th scope=\"row\" class=\"mw-capiunto-infobox-label\">Date(s)"
+    },
+    TIMEFRAME: {
+        startToken: "class=\"brand-md-timeframe-div\">\n",
+        endToken: "</td></tr></tbody>"
+    },
+    CONTENT: {
+        startToken: "</table>\n",
+        endToken: "</div>", lastOccurance: true
+    },
+}
+
+// HTML Scraper: Wikipedia excerpt
+const WE_HEADER = 'class=\"card wikipedia-excerpt';
+const WE_END = 'class=\"card-border';
+
+// HTML Scraper function (single result)
+function locateParam(htmlString: string, paramLoc: HTMLStringLocation): string { //TODO: Report errors
+    const afterStr = htmlString.substring(
+        (paramLoc.lastOccurance ? htmlString.lastIndexOf(paramLoc.startToken) : htmlString.indexOf(paramLoc.startToken))
+        + paramLoc.startToken.length);
+
+    if (htmlString.indexOf(paramLoc.startToken) == -1 || afterStr.indexOf(paramLoc.endToken) == -1)
+        return '';
+
+    return afterStr.substring(0,
+        afterStr.indexOf(paramLoc.endToken)
+    ).trim();
+}
+
+// HTML Scraper function (multiple results)
+function locateParams(htmlString: string, paramLoc: HTMLStringLocation): string[] {
+    const [first, ...splitStr] = htmlString.split(paramLoc.startToken);
+    if (splitStr && splitStr.length > 0) {
+        return splitStr.map(str => {
+            return locateParam(paramLoc.startToken + str, paramLoc);
+        });
+    }
+    return [];
+}
+
+
+// Parse functions
+
+// Point imported links to MediaWiki (original) domain
+function recontextualizeLinks(htmlString: string): string { // fixes mediawiki-specific links
+    return htmlString.replaceAll('\'/wiki/', '\'' + MW_URL + '/wiki/').replaceAll('\"/wiki/', '\"' + MW_URL + '/wiki/').replaceAll(' /wiki/', ' ' + MW_URL + '/wiki/').replaceAll('\'/w/', '\'' + MW_URL + '/w/').replaceAll('\"/w/', '\"' + MW_URL + '/w/').replaceAll(' /w/', ' ' + MW_URL + '/w/'); //TODO Regex
+}
+
+// Point imported links to local domain
+function adoptLinks(htmlString: string): string {
+    return htmlString.replaceAll('/w/', B_URL + '/b/');
+}
+
+// Improve reference format for imported MW HTML
+function fixReferenceIds(htmlString: string): string {
+    const [start, ...splitStr] = htmlString.split('li id=\"');
+
+    if (!splitStr || splitStr.length == 0)
+        return htmlString;
+
+    const fixedStr = splitStr.map(str => {
+        const id = str.substring(0, str.indexOf('"'));
+        return id + '" name="' + str;
+    }).join('li id=\"');
+
+    return start + 'li id=\"' + fixedStr;
+}
+
+
+// MW API Calls
+
+// MW API: Scrape list of brands
 export async function fetchBrandPages(pageNames: string[]): Promise<BrandPage[]> {
     const fetchPromises = pageNames.map(brandName => fetchBrandPage(brandName));
     const searchResults = await Promise.all(fetchPromises);
     return searchResults;
 }
 
+// MW API: Scrape brand page
 export async function fetchBrandPage(pageName: string, revalidate?: boolean): Promise<BrandPage> {
     var status = 'success';
     const pageResponse = await fetchPageHTMLString(pageName, revalidate);
@@ -103,7 +187,7 @@ export async function fetchBrandPage(pageName: string, revalidate?: boolean): Pr
     const logoUrl = locateParam(datatableHTMLString, BRAND_HTML_MAP.LOGO_URL);
     const coverUrl = locateParam(datatableHTMLString, BRAND_HTML_MAP.COVER_URL);
 
-    const pageData: BrandPage = { // TODO: Catch errors
+    const pageData: BrandPage = {
         status: 'success',
         id: Number(locateParam(pageResponse, WIKI_HTML_MAP.ID)),
         name: locateParam(pageResponse, WIKI_HTML_MAP.TITLE),
@@ -132,35 +216,15 @@ export async function fetchBrandPage(pageName: string, revalidate?: boolean): Pr
     return pageData;
 }
 
-
-
-const REPORT_HTML_MAP = { // MediaWiki report page HTML structure
-    DATATABLE: {
-        startToken: "<table class=\"mw-capiunto-infobox report-page-infobox\"",
-        endToken: "</table>"
-    },
-    TYPE: {
-        startToken: "class=\"report-md-type-div\">",
-        endToken: "</td></tr><tr><th scope=\"row\" class=\"mw-capiunto-infobox-label\">Date(s)"
-    },
-    TIMEFRAME: {
-        startToken: "class=\"brand-md-timeframe-div\">\n",
-        endToken: "</td></tr></tbody>"
-    },
-    CONTENT: {
-        startToken: "</table>\n",
-        endToken: "</div>", lastOccurance: true
-    },
-}
-
+// MW API: Scrape report pages
 export async function fetchReportPages(pageNames: string[], revalidate?: boolean): Promise<ReportPage[]> {
     const fetchPromises = pageNames.map(pageName => fetchPageHTMLString(pageName, revalidate));
     const pageResponses = await Promise.all(fetchPromises);
     const fetchPreviewPromises = pageNames.map(pageName => fetchPagePlainText(pageName, revalidate));
     const pagePreviewResponses = await Promise.all(fetchPreviewPromises);
 
-    // if (DEBUG) { console.log('[MediaWiki] Fetched reports: '); console.log(pageResponses); }
-    // if (DEBUG) { console.log('[MediaWiki] Fetched previews: '); console.log(pagePreviewResponses); }
+    if (DEBUG) { console.log('[MediaWiki] Fetched reports: ', pageResponses); }
+    if (DEBUG) { console.log('[MediaWiki] Fetched previews: ', pagePreviewResponses); }
 
 
     const reportPageDatas: ReportPage[] = pageResponses.map(
@@ -185,37 +249,10 @@ export async function fetchReportPages(pageNames: string[], revalidate?: boolean
     );
     if (DEBUG) { console.log('[MediaWiki] Interpreted reports as: '); reportPageDatas.map(item => console.log(item)); }
 
-
-
     return reportPageDatas;
 }
 
 
-function locateParam(htmlString: string, paramLoc: HTMLStringLocation): string {
-    const afterStr = htmlString.substring(
-        (paramLoc.lastOccurance ? htmlString.lastIndexOf(paramLoc.startToken) : htmlString.indexOf(paramLoc.startToken))
-        + paramLoc.startToken.length);
-
-    if (htmlString.indexOf(paramLoc.startToken) == -1 || afterStr.indexOf(paramLoc.endToken) == -1)
-        return '';
-
-    return afterStr.substring(0,
-        afterStr.indexOf(paramLoc.endToken)
-    ).trim();
-}
-
-function locateParams(htmlString: string, paramLoc: HTMLStringLocation): string[] {
-    const [first, ...splitStr] = htmlString.split(paramLoc.startToken);
-    if (splitStr && splitStr.length > 0) {
-        return splitStr.map(str => {
-            return locateParam(paramLoc.startToken + str, paramLoc);
-        });
-    }
-    return [];
-}
-
-const WE_HEADER = 'class=\"card wikipedia-excerpt';
-const WE_END = 'class=\"card-border';
 
 function parseWikipediaExcerpts(htmlString: string): string {
     if (htmlString.includes(WE_HEADER)) {
@@ -255,8 +292,20 @@ function parseWikipediaExcerpts(htmlString: string): string {
 }
 
 
+// Fetch utilities
 
-type MWPageResponse = { //Define expected JSON response object
+// Fetch + delay for testing
+const delayFetch = async (url: string, options: any): Promise<Response> =>
+    new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(fetch(url, options));
+        }, SIMULATE_LAG);
+    });
+
+
+
+// HTML: Expected JSON response object
+type MWPageResponse = {
     parse: {
         pageid: number
         title: string
@@ -266,13 +315,7 @@ type MWPageResponse = { //Define expected JSON response object
     }
 }
 
-const delayFetch = async (url: string, options: any): Promise<Response> =>
-    new Promise((resolve) => {
-        setTimeout(() => {
-            resolve(fetch(url, options));
-        }, SIMULATE_LAG);
-    });
-
+// HTML: Fetch
 async function fetchPageHTMLString(pageName: string, forceRevalidate?: boolean): Promise<string> {
     try {
         const params = new URLSearchParams({ //API Get Params
@@ -299,7 +342,8 @@ async function fetchPageHTMLString(pageName: string, forceRevalidate?: boolean):
     }
 }
 
-type MWTextExtResponse = { //Define expected JSON response object
+// Plain Text: Expected JSON response object
+type MWTextExtResponse = {
     query: {
         pages: [{
             pageid: number
@@ -309,6 +353,7 @@ type MWTextExtResponse = { //Define expected JSON response object
     }
 }
 
+// Plain Text: Fetch
 export async function fetchPagePlainText(pageName: string, forceRevalidate?: boolean): Promise<string> {
     try {
         const params = new URLSearchParams({ //API Get Params
@@ -336,38 +381,15 @@ export async function fetchPagePlainText(pageName: string, forceRevalidate?: boo
     }
 }
 
-
-function recontextualizeLinks(htmlString: string): string { // fixes mediawiki-specific links
-    return htmlString.replaceAll('\'/wiki/', '\'' + MW_URL + '/wiki/').replaceAll('\"/wiki/', '\"' + MW_URL + '/wiki/').replaceAll(' /wiki/', ' ' + MW_URL + '/wiki/').replaceAll('\'/w/', '\'' + MW_URL + '/w/').replaceAll('\"/w/', '\"' + MW_URL + '/w/').replaceAll(' /w/', ' ' + MW_URL + '/w/'); //TODO Regex
-}
-
-function adoptLinks(htmlString: string): string {
-    return htmlString.replaceAll('/w/', B_URL + '/b/');
-}
-
-function fixReferenceIds(htmlString: string): string {
-    const [start, ...splitStr] = htmlString.split('li id=\"');
-
-    if (!splitStr || splitStr.length == 0)
-        return htmlString;
-
-    const fixedStr = splitStr.map(str => {
-        const id = str.substring(0, str.indexOf('"'));
-        return id + '" name="' + str;
-    }).join('li id=\"');
-
-    // console.log(fixedStr);
-    return start + 'li id=\"' + fixedStr;
-}
-
-
-type MWSearchResults = { // Structure of search response
+// Search: Expected JSON response object
+type MWSearchResults = {
     query: {
         searchinfo: {},
         search: [{ title: string }]
     }
 }
 
+// Search: Fetch
 export async function searchBrands(options: { query: string, resultCount: number, resultPage?: number, forceRevalidate?: boolean }): Promise<(string)[]> {
     const params = new URLSearchParams({ //API Get Params
         action: "query",
@@ -400,15 +422,4 @@ export async function searchBrands(options: { query: string, resultCount: number
         throw new Error('[MediaWiki] Failed to perform search: ' + `${MW_URL}/w/api.php?${params}`);
     }
 
-}
-
-
-const isValidUrl = (urlString: string) => {
-    var urlPattern = new RegExp('^(https?:\\/\\/)?' + // validate protocol
-        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // validate domain name
-        '((\\d{1,3}\\.){3}\\d{1,3}))' + // validate OR ip (v4) address
-        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // validate port and path
-        '(\\?[;&a-z\\d%_.~+=-]*)?' + // validate query string
-        '(\\#[-a-z\\d_]*)?$', 'i'); // validate fragment locator
-    return !!urlPattern.test(urlString);
 }

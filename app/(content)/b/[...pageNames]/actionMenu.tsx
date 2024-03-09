@@ -2,7 +2,7 @@
 
 import { MW_URL } from "@/app/lib/definitions";
 import { Icon, InteractiveIcon } from "@/app/lib/icons/ui-icons";
-import ClickOutside from "@/app/lib/utils/ClickOutside";
+import ClickOutside from "@/app/lib/utils/clickOutside";
 import Link from "next/link";
 import { useState } from "react";
 

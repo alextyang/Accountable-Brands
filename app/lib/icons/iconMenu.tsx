@@ -2,10 +2,8 @@
 
 import { ignoreMissingIconForQuery } from './actions';
 
-
-
-
-export function IgnoreButton({iconKey, message}:{iconKey:string, message:string}) {
+// COMPONENT: Option to ignore an icon error/conflict
+export function IgnoreButton({ iconKey, message }: { iconKey: string, message: string }) {
     if (message.length < 2) return '';
     const ignoreMissingIconAction = ignoreMissingIconForQuery.bind(null, iconKey);
     console.log(iconKey);

@@ -6,6 +6,7 @@ const splashMessages = [
     "Crowd-sourced consumer empowerment.",
     "We don't cancel. We critique.",
     "What marketing firms don't want you to know.",
+    "It's 'Readers Added Context' for brands.",
 ];
 
 export function SplashMessage({ }) {
