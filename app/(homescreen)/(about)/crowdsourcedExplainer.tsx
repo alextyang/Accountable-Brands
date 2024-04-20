@@ -1,4 +1,4 @@
-import { Icon } from "@/app/lib/icons/ui-icons";
+import { Icon } from "@/app/lib/icons/interfaceIcons";
 import React from "react";
 
 const classNames = {

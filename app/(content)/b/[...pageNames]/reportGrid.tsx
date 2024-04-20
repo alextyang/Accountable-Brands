@@ -1,6 +1,6 @@
 "use client";
 
-import { Icon } from "@/app/lib/icons/ui-icons";
+import { Icon, IconName } from "@/app/lib/icons/interfaceIcons";
 import ActionMenu from "./actionMenu";
 import { ReportPage, REPORT_TYPES } from "@/app/lib/definitions";
 import {
@@ -283,7 +283,7 @@ function ReportItem(
             {/* Type Icon & Labels */}
             <Icon
               className={REPORT_TYPES[report.type].iconStyle}
-              name={REPORT_TYPES[report.type].icon}
+              name={REPORT_TYPES[report.type].icon as IconName}
               color="#D8C1AC"
             />
             <div className="absolute top-0 text-right right-16 ">
@@ -419,7 +419,7 @@ function AnimatedReportModal({
               {/* Type Icon & Labels */}
               <Icon
                 className={REPORT_TYPES[report.type].iconStyle + " !block "}
-                name={REPORT_TYPES[report.type].icon}
+                name={REPORT_TYPES[report.type].icon as IconName}
                 color="#D8C1AC"
               />
               <div
@@ -629,7 +629,7 @@ function StaticReportModal({
               {/* Type Icon & Labels */}
               <Icon
                 className={REPORT_TYPES[report.type].iconStyle + " !block "}
-                name={REPORT_TYPES[report.type].icon}
+                name={REPORT_TYPES[report.type].icon as IconName}
                 color="#D8C1AC"
               />
               <div

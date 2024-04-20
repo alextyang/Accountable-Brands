@@ -1,6 +1,6 @@
-import { Icon } from "@/app/lib/icons/ui-icons";
+import { Icon } from "@/app/lib/icons/interfaceIcons";
 import React from "react";
-export function Faq({}) {
+export function Faq({ }) {
   return (
     <div className="text-center max-w-xl flex flex-col justify-center items-center mt-20">
       <Icon className="h-24 w-24 mb-6 opacity-100" name="questions" />

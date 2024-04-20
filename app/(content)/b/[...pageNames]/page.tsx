@@ -7,11 +7,11 @@ import parseHTML from 'html-react-parser';
 import { JSDOM } from 'jsdom';
 import DOMPurify from 'dompurify';
 import ActionMenu from './actionMenu';
-import { IndustryIcon, ProductIcons } from '@/app/lib/icons/dynamicIcons';
+import { IndustryIcon, ProductIcons } from '@/app/lib/utils/iconPicker/iconComponents';
 import { ReportGrid } from './reportGrid';
 import Link from 'next/link';
-import { Icon } from '@/app/lib/icons/ui-icons';
-import { BrandPage, MW_URL, ReportPage } from '@/app/lib/definitions';
+import { Icon } from '@/app/lib/icons/interfaceIcons';
+import { BrandPage as BrandPageType, MW_URL, ReportPage } from '@/app/lib/definitions';
 import { ErrorBoundary } from 'next/dist/client/components/error-boundary';
 import BrandPageError, { ReportPageError } from './error';
 import { Suspense } from 'react';
@@ -65,7 +65,7 @@ async function BrandPage({ brandName }: { brandName: string }) {
     )
 }
 
-async function ReportsPage({ brandData }: { brandData: BrandPage }) {
+async function ReportsPage({ brandData }: { brandData: BrandPageType }) {
     if (!brandData.reportNames || brandData.reportNames.length < 1)
         return (<NoReportsFound brandName={brandData.name} brandUrlName={brandData.url_name} />);
 
@@ -97,7 +97,7 @@ function NoReportsFound({ brandName, brandUrlName }: { brandName: string, brandU
     )
 }
 
-async function BrandReferences({ brandData }: { brandData: BrandPage }) {
+async function BrandReferences({ brandData }: { brandData: BrandPageType }) {
     return (
         <div style={{ columnWidth: '30em' }} className='w-full px-8 pt-8 pb-12 text-sm'>
             {brandData.references ?
@@ -112,7 +112,7 @@ async function BrandReferences({ brandData }: { brandData: BrandPage }) {
     );
 }
 
-async function BrandSummary({ brandData }: { brandData: BrandPage }) {
+async function BrandSummary({ brandData }: { brandData: BrandPageType }) {
     return (
         <div className='relative flex flex-col items-center w-full'>
             <div className='absolute top-0 left-0 right-0 -z-10'> {/* Background Image */}
@@ -122,7 +122,7 @@ async function BrandSummary({ brandData }: { brandData: BrandPage }) {
                 <div className='flex flex-col justify-end w-full md:flex-row flex-nowrap'> {/* Logo & Infocard & Products */}
                     <div className='relative flex items-center justify-center h-full mx-20 mt-10 xs:mx-32 mb-14 md:mx-8 md:my-auto md:w-1/5 md:max-w-lg min-w-32 min-h-32'>
                         <div className='w-full h-full max-h-28 lg:w-3/4 lg:h-3/4'> {/* Logo */}
-                            {brandData.logo ? <Image priority={true} className='object-contain' fill={true} sizes="33vw" src={brandData.logo.url} alt={brandData.name + ' Logo'} /> : ''}
+                            {brandData.logo ? <Image priority={true} className='object-contain drop-shadow-[0_12px_12px_rgba(216,193,172,0.75)]' fill={true} sizes="33vw" src={brandData.logo.url} alt={brandData.name + ' Logo'} /> : ''}
                         </div>
                     </div>
                     <div className='relative flex flex-col items-end justify-start -mt-14 grow md:mt-0 '> {/* Infocard & Products */}
@@ -153,7 +153,7 @@ async function BrandSummary({ brandData }: { brandData: BrandPage }) {
                         </div>
                         <div className='flex flex-col-reverse md:flex-row items-start w-full py-3.5 pl-6 md:px-4'> {/* Products */}
                             <div className='absolute top-4 md:top-auto md:relative flex flex-row justify-start justify-self-start gap-0.5 -ml-1 mr-1.5 md:mr-0'> {/* Icons */}
-                                <ProductIcons className='h-7 w-7 md:h-8 md:w-8 mr-0.5 mb-3 md:mb-1.5 -mt-0.5' pageName={brandData.name} excludeIndustryRaw={brandData.industry ? brandData.industry : 'default'} names={brandData.products ? brandData.products.split(' • ') : []} />
+                                <ProductIcons className='h-7 w-7 md:h-8 md:w-8 mr-0.5 mb-3 md:mb-1.5 -mt-0.5' pageName={brandData.name} excludeIndustryName={brandData.industry ? brandData.industry : 'default'} names={brandData.products ? brandData.products.split(' • ') : []} />
                             </div>
                             <div className='w-full text-base font-medium leading-7 tracking-normal text-left md:pl-4 grow md:w-auto justify-self-end md:text-base md:text-right'> {/* Brands */}
                                 <div className='md:text-balance pr-2.5 -mt-1'>{brandData.products && brandData.products.length > 0 ? renderHTMLString("<span class=\"opacity-90 bg-black text-tan px-1.5 mr-2.5\">Products</span>" + brandData.products) : ''}</div>

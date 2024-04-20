@@ -1,8 +1,7 @@
-import { TitleSplash } from "@/app/lib/assets/logos";
+import { TitleSplash } from "@/app/lib/branding/branding";
 import React from "react";
 import { HomeSearchBar } from "../(content)/search/[searchQuery]/searchBar";
-import BetaIndicator from "@/app/lib/assets/betaIndicator";
-import { Icon } from "@/app/lib/icons/ui-icons";
+import { Icon } from "@/app/lib/icons/interfaceIcons";
 import { SplashMessage } from "./splashMessage";
 
 export function SplashScreen({ }) {

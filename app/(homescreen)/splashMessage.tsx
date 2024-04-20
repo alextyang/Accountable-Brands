@@ -1,12 +1,13 @@
 import React from "react";
-import BetaIndicator from "@/app/lib/assets/betaIndicator";
+import { BetaIndicator } from "@/app/lib/branding/branding";
 import { randomInt } from "crypto";
 
 const splashMessages = [
     "Crowd-sourced consumer empowerment.",
-    "We don't cancel. We critique.",
+    "We don't cancel, we critique.",
+    "Because actions speak louder than words.",
     "What marketing firms don't want you to know.",
-    "It's 'Readers Added Context' for brands.",
+    "Adding context to household names.",
 ];
 
 export function SplashMessage({ }) {

@@ -12,16 +12,24 @@ export const PATREON_LINK = '';
 
 export const DEBUG = false;
 
-export const REVALIDATE_INTERVAL = 0; // Cache revalidate
+export const REVALIDATE_INTERVAL = 10 * 60 * 1000; // Cache revalidate
 export const SIMULATE_LAG = 0; // Fetch delay for testing
 
-export const COLORS = {
-    TAN: '#D8C1AC',
-    BLACK: '#07090F',
-    YELLOW: '#D29B31',
-    GREEN: '#458A2D',
-    RED: '#BF211E',
-    BLUE: '#4E68C6'
+export const THEME = {
+    ICONS: {
+        VIEWBOX: {
+            MATERIAL: '0 -960 960 960',
+            SOCIAL: '0 0 24 24'
+        }
+    },
+    COLORS: {
+        TAN: '#D8C1AC',
+        BLACK: '#07090F',
+        YELLOW: '#D29B31',
+        GREEN: '#458A2D',
+        RED: '#BF211E',
+        BLUE: '#4E68C6'
+    }
 }
 
 

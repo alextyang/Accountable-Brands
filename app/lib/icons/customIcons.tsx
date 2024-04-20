@@ -1,4 +1,7 @@
-export default function brandSearchIcon({ className = "" }) {
+// Material-style icon components for site-specific needs.
+
+// ICON: Brand + search icon
+export function BrandSearchIcon({ className = "" }) {
   return (
     <div className={className}>
       <svg viewBox="0 0 99 93" fill="none" xmlns="http://www.w3.org/2000/svg">

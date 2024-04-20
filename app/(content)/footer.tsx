@@ -5,15 +5,16 @@ import { useEffect, useState } from "react";
 import {
   ADD_BRAND_URL,
   ADD_REPORT_URL,
-  COLORS,
+  THEME,
   FACEBOOK_LINK,
   INSTAGRAM_LINK,
   MW_URL,
   PATREON_LINK,
   TWITTER_LINK,
 } from "../lib/definitions";
-import { CCIcons, SocialIcon } from "../lib/icons/ui-icons";
-import { TanIconMark } from "../lib/assets/logos";
+import { Icon } from "../lib/icons/interfaceIcons";
+import { LetterMark } from "../lib/branding/branding";
+import { CCIcons } from "../lib/branding/externalBranding";
 
 type FooterLinkList = { header: string; links: string[]; hrefs: string[] }[];
 const baseFooterLinks: FooterLinkList = [
@@ -50,7 +51,7 @@ export default function Footer() {
       </div>
       <div className="flex flex-row-reverse flex-wrap sm:flex-nowrap gap-y-6 justify-between items-end w-full px-2.5 mt-6 md:mt-12">
         <DisclaimerSection />
-        <TanIconMark className="h-12 mb-5 mr-auto" isLink={true} />
+        <LetterMark className="h-12 mb-5 mr-auto" isLink={true} color={THEME.COLORS.TAN} />
       </div>
     </div>
   );
@@ -110,7 +111,7 @@ function DisclaimerSection() {
             Text is available under{" "}
             <span className="ml-px font-medium">CC BY 4.0</span>
           </Link>
-          <CCIcons className="w-5 h-5 p-px " color={COLORS.TAN} />
+          <CCIcons className="w-5 h-5 p-px " color={THEME.COLORS.TAN} />
         </div>
       </div>
     </div>
@@ -119,20 +120,25 @@ function DisclaimerSection() {
 
 function SocialLinksSection() {
   const iconStyle = "h-8 w-8";
+  const socialIconParams = {
+    className: "h-8 w-8",
+    color: THEME.COLORS.TAN,
+    viewBox: THEME.ICONS.VIEWBOX.SOCIAL
+  };
 
   return (
     <div className=" flex flex-row justify-end ml-auto items-start gap-4 px-2.5 mt-4 lg:mt-1.5">
       <Link href={FACEBOOK_LINK}>
-        <SocialIcon className={iconStyle} name="facebook" color="#D8C1AC" />
+        <Icon name="facebook" {...socialIconParams} />
       </Link>
       <Link href={INSTAGRAM_LINK}>
-        <SocialIcon className={iconStyle} name="instagram" color="#D8C1AC" />
+        <Icon name="instagram" {...socialIconParams} />
       </Link>
       <Link href={TWITTER_LINK}>
-        <SocialIcon className={iconStyle} name="twitter" color="#D8C1AC" />
+        <Icon name="twitter" {...socialIconParams} />
       </Link>
       <Link href={PATREON_LINK}>
-        <SocialIcon className={iconStyle} name="patreon" color="#D8C1AC" />
+        <Icon name="patreon" {...socialIconParams} />
       </Link>
     </div>
   );

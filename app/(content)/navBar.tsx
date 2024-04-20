@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { IconMark, TitleMark, TypeMark } from "../lib/assets/logos";
-import { Icon, InteractiveIcon } from "../lib/icons/ui-icons";
+import { WordMark } from "../lib/branding/branding";
+import { Icon, IconName } from "../lib/icons/interfaceIcons";
 import React, { useRef, useEffect } from "react";
 import ClickOutside from "../lib/utils/clickOutside";
 import Link from "next/link";
@@ -46,7 +46,7 @@ export default function NavBar() {
   return (
     <div className="sticky w-100 h-min -mb-1.5 z-10">
       <div className="flex h-14 b border-b-black border-b-6 flex-nowrap">
-        <TypeMark className="h-full p-2.5 ml-2" />
+        <WordMark className="h-full p-2.5 ml-2" />
         <div
           className="flex justify-end w-full justify-self-end flex-nowrap"
           ref={menuButtonRef}
@@ -54,7 +54,7 @@ export default function NavBar() {
           {path.includes("/search") ? (
             ""
           ) : (
-            <InteractiveIcon
+            <Icon
               name={isSearchOpen ? "search-open" : "search"}
               onClick={() => toggleSearch()}
               className={
@@ -63,7 +63,7 @@ export default function NavBar() {
               }
             />
           )}
-          <InteractiveIcon
+          <Icon
             name={isMenuOpen ? "menu-open" : "menu"}
             onClick={() => toggleMenu()}
             className="h-full p-1 cursor-pointer aspect-square"
@@ -111,7 +111,7 @@ function Dropdown({ items, className = "", }: { items: { title: string; icon: st
             className="flex flex-row h-12 cursor-pointer relative bg-tan -pb-1.5 items-center justify-start pr-9 border-b-black border-b-6"
           >
             <Icon
-              name={item.icon}
+              name={item.icon as IconName}
               className={" h-9 aspect-square ml-1 mr-1.5 p-" + item.p}
             />
             <p>{item.title}</p>

@@ -1,11 +1,11 @@
 import { ADD_BRAND_URL, BrandPage, REPORT_TYPES, ReportPage } from '../../../lib/definitions'
 import { Suspense } from 'react'
 import Image from 'next/image'
-import { Icon } from '@/app/lib/icons/ui-icons';
-import { IndustryIcon } from '@/app/lib/icons/dynamicIcons';
+import { Icon, IconName } from '@/app/lib/icons/interfaceIcons';
 import { fetchBrandPage, fetchReportPages, searchBrands } from '@/app/lib/mediawiki';
 import Link from 'next/link';
 import { LoadingBrandItem, LoadingReportItem, LoadingReports, LoadingSearchRow } from './loading';
+import { IndustryIcon } from '@/app/lib/utils/iconPicker/iconComponents';
 
 
 export default async function SearchResults({ searchQuery, pageNumber = 0, resultCount = 10, className = "" }: { searchQuery: string, pageNumber?: number, resultCount?: number, className?: string, debug?: boolean }) {
@@ -18,10 +18,10 @@ export default async function SearchResults({ searchQuery, pageNumber = 0, resul
   }
   return (
     <div className={'flex flex-col items-center justify-start w-full mb-8' + className}>
-      {searchResponse.map((item) => {
+      {searchResponse.map((item, index) => {
         return (
           <Suspense key={item} fallback={<LoadingSearchRow />}>
-            <SearchResultRow key={item} brandName={item}></SearchResultRow>
+            <SearchResultRow key={item} brandName={item} rowIndex={index}></SearchResultRow>
           </Suspense>
         )
       })}
@@ -29,7 +29,7 @@ export default async function SearchResults({ searchQuery, pageNumber = 0, resul
   );
 }
 
-async function SearchResultRow({ brandName }: { brandName: string }) {
+async function SearchResultRow({ brandName, rowIndex }: { brandName: string, rowIndex: number }) {
   const brandData = await fetchBrandPage(brandName);
 
   if (brandData.status == 'failed')
@@ -55,11 +55,11 @@ async function SearchResultRow({ brandName }: { brandName: string }) {
       <div className={'grid grid-flow-col justify-stretch justify-items-start grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 -mr-1.5'}>
 
         <Suspense fallback={LoadingBrandItem()}>
-          {brandData ? (<BrandSearchItem brandData={brandData} />) : ''}
+          {brandData ? (<BrandSearchItem brandData={brandData} index={rowIndex} />) : ''}
         </Suspense>
         <Suspense fallback={LoadingReports()}>
-          {(brandData.reportNames) ? (brandData.reportNames.map((reportName, index) => (
-            <ReportSearchItem key={reportName} reportName={reportName} index={index} />
+          {(brandData.reportNames) ? (brandData.reportNames.map((reportName, reportIndex) => (
+            <ReportSearchItem key={reportName} reportName={reportName} index={reportIndex} />
           ))) : ''}
         </Suspense>
 
@@ -70,14 +70,14 @@ async function SearchResultRow({ brandName }: { brandName: string }) {
 
 
 const SEARCH_ITEM_className = 'col-span-1 justify-self-stretch h-52 relative  text-xl font-medium first:-ml-1.5 min-w-64 '; // max-w-128
-async function BrandSearchItem({ brandData }: { brandData: BrandPage }) {
+async function BrandSearchItem({ brandData, index }: { brandData: BrandPage, index: number }) {
   return (
     <div className={SEARCH_ITEM_className + ' border-x-black border-x-6 border-b-black border-b-6 text-xl font-medium flex flex-col'}>
       <div className='relative h-full w-full flex justify-center items-center overflow-hidden bg-tan -mb-1.5 p-6'>
         <div className='relative z-10 w-full h-full flex-item min-w-8 max-w-64 max-h-32'>
-          {brandData.logo ? <Image className='object-contain' fill={true} sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw" src={brandData.logo.url} alt={brandData.name + ' Logo'} /> : ''}
+          {brandData.logo ? <Image className='object-contain' fill={true} sizes="(max-width: 768px) 33vw, (max-width: 1200px) 33vw" src={brandData.logo.url} priority={index < 6} alt={brandData.name + ' Logo'} /> : ''}
         </div>
-        {brandData.coverImage ? <Image className='object-cover opacity-75 mix-blend-soft-light' src={brandData.coverImage.url} alt={brandData.coverImage.alt ? brandData.coverImage.alt : ''} fill={true} sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw" /> : ''}
+        {brandData.coverImage ? <Image className='object-cover opacity-75 mix-blend-soft-light' src={brandData.coverImage.url} alt={brandData.coverImage.alt ? brandData.coverImage.alt : ''} fill={true} priority={index < 6} sizes="(max-width: 520px) 50vw, (max-width: 768px) 33vw" /> : ''}
       </div>
       <div className='h-11 bg-black text-tan text-xl font-medium relative flex justify-center items-center -pl-1.5 -pb-1.5 -pr-1.5 -bottom-1.5'>
         <p className='text-center '>
@@ -108,7 +108,7 @@ async function ReportSearchItem({ reportName, index }: { reportName: string, ind
           </div>
 
           <div className={'justify-self-end w-14 h-14 p-1 shrink-0 -mt-0.5 mr-2 ' + REPORT_TYPES[reportData.type].color}>
-            <Icon className={REPORT_TYPES[reportData.type].iconStyle} name={REPORT_TYPES[reportData.type].icon} color="#D8C1AC" />
+            <Icon className={REPORT_TYPES[reportData.type].iconStyle} name={REPORT_TYPES[reportData.type].icon as IconName} color="#D8C1AC" />
           </div>
         </div>
         <div className='mx-2.5 mt-1.5 mb-3 pb-0.5 h-full flex flex-col overflow-hidden'>

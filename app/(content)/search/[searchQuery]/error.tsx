@@ -1,6 +1,6 @@
 "use client";
 
-import { Icon } from "@/app/lib/icons/ui-icons";
+import { Icon } from "@/app/lib/icons/interfaceIcons";
 import { useEffect } from "react";
 
 export default function SearchError({

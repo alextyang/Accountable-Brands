@@ -1,7 +1,7 @@
 "use client";
 
 import { MW_URL } from "@/app/lib/definitions";
-import { Icon, InteractiveIcon } from "@/app/lib/icons/ui-icons";
+import { Icon, IconName } from "@/app/lib/icons/interfaceIcons";
 import ClickOutside from "@/app/lib/utils/clickOutside";
 import Link from "next/link";
 import { useState } from "react";
@@ -30,7 +30,7 @@ export default function ActionMenu({
 
   return (
     <div className="relative h-14 aspect-square mt-0.5 -mb-1 p-1">
-      <InteractiveIcon
+      <Icon
         className=" cursor-pointer"
         onClick={openMenu}
         name={pageName.includes("/") ? "vertical-dots" : "horizontal-dots"}
@@ -88,8 +88,8 @@ function ActionDropdown({
             className="flex flex-row h-12 cursor-pointer relative bg-tan -pb-1.5 items-center justify-start pr-4  border-b-black border-b-6"
           >
             <Icon
-              name={item.icon}
-              className={"aspect-square h-9 aspect-square m-1 mr-1 p-" + item.p}
+              name={item.icon as IconName}
+              className={"aspect-square h-9 m-1 mr-1 p-" + item.p}
             />
             <p>{item.title}</p>
             <Link

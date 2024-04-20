@@ -1,9 +1,9 @@
-import { IconMark } from "@/app/lib/assets/logos";
+import { LetterMark } from "@/app/lib/branding/branding";
 import React from "react";
 export function MissionStatement({ }) {
   return (
     <div className="relative flex flex-col w-auto max-w-screen-md mt-8 mb-24 text-center md:mt-10">
-      <IconMark
+      <LetterMark
         className="flex items-center justify-center h-12 mb-4 mr-4"
         isLink={false}
       />

@@ -1,6 +1,6 @@
-import BrandSearchIcon from "@/app/lib/assets/brandSearchIcon";
+import { BrandSearchIcon } from "@/app/lib/icons/customIcons";
 import { REPORT_TYPES } from "@/app/lib/definitions";
-import { Icon } from "@/app/lib/icons/ui-icons";
+import { Icon, IconName } from "@/app/lib/icons/interfaceIcons";
 import React from "react";
 export function ReportExplainer({ }) {
   return (
@@ -23,7 +23,7 @@ function ExampleReportType({ number }: { number: string }) {
     <div className={"px-1.5 flex flex-row w-full max-w-md py-3 xs:py-1.5 " + REPORT_TYPES[number].color} >
       <Icon
         className={"h-16 w-16 ml-1.5 shrink-0" + REPORT_TYPES[number].iconStyle}
-        name={REPORT_TYPES[number].icon}
+        name={REPORT_TYPES[number].icon as IconName}
         color="rgb(216 193 172)"
       />
       <div className="flex flex-col items-start justify-center pr-5 ml-3 text-left text-tan sm:whitespace-nowrap shrink">
