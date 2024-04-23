@@ -39,7 +39,7 @@ async function SearchResultRow({ brandName, rowIndex }: { brandName: string, row
   brandData.reportNames.splice(4);
 
   return (
-    <div className='relative w-full overflow-hidden h-52'>
+    <div className='relative w-full h-52'>
 
       <Link href={"/b/" + brandData.url_name} className='z-20 opacity-0 hover:opacity-100 flex absolute left-0 top-0 right-0 bottom-1.5 items-center justify-center'>
         <div className='w-0 sm:w-64'> </div>
@@ -52,7 +52,7 @@ async function SearchResultRow({ brandName, rowIndex }: { brandName: string, row
         </div>
       </Link>
 
-      <div className={'grid grid-flow-col justify-stretch justify-items-start grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 -mr-1.5'}>
+      <div className={'grid grid-flow-col justify-stretch justify-items-start grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 -mr-1.5 overflow-visible'}>
 
         <Suspense fallback={LoadingBrandItem()}>
           {brandData ? (<BrandSearchItem brandData={brandData} index={rowIndex} />) : ''}
@@ -73,7 +73,8 @@ const SEARCH_ITEM_className = 'col-span-1 justify-self-stretch h-52 relative  te
 async function BrandSearchItem({ brandData, index }: { brandData: BrandPage, index: number }) {
   return (
     <div className={SEARCH_ITEM_className + ' border-x-black border-x-6 border-b-black border-b-6 text-xl font-medium flex flex-col'}>
-      <div className='relative h-full w-full flex justify-center items-center overflow-hidden bg-tan -mb-1.5 p-6'>
+
+      <div className='relative h-full w-full flex justify-center items-center bg-tan -mb-1.5 p-6'>
         <div className='relative z-10 w-full h-full flex-item min-w-8 max-w-64 max-h-32'>
           {brandData.logo ? <Image className='object-contain' fill={true} sizes="(max-width: 768px) 33vw, (max-width: 1200px) 33vw" src={brandData.logo.url} priority={index < 6} alt={brandData.name + ' Logo'} /> : ''}
         </div>
@@ -100,8 +101,9 @@ async function ReportSearchItem({ reportName, index }: { reportName: string, ind
   else if (index == 3) className = 'hidden 2xl:block';
 
   return (
-    <div className={SEARCH_ITEM_className + ' border-r-black border-r-6 border-b-black border-b-6 relative overflow-hidden text-ellipsis ' + className}>
-      <div className='absolute top-0 bottom-0 left-0 flex flex-col'>
+    <div className={SEARCH_ITEM_className + ' border-r-black border-r-6 border-b-black border-b-6 relative ' + className}>
+      <div className="absolute -top-1.5 -left-[0.35rem] -right-[0.35rem] border-t-6 h-2 border-x-6 border-x-black border-t-black z-10"></div>
+      <div className='absolute top-0 bottom-0 left-0 flex flex-col overflow-visible text-ellipsis'>
         <div className='flex flex-row flex-nowrap h-min justify-start pt-2.5'>
           <div className='block justify-self-start pl-2.5 pr-1.5'>
             <p className='font-medium leading-tight text-l line-clamp-3'>{reportData.title.substring(1 + reportData.title.indexOf('/'))}</p>

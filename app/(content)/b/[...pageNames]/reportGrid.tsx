@@ -54,13 +54,15 @@ export function ReportGrid({ reports }: { reports: ReportPage[] }) {
     function navHandler(ev: PopStateEvent) {
       if (!reports) return;
 
-      const newReportName = decodeURI(window.location.pathname.substring(3));
+      const newReportName = decodeURIComponent(window.location.pathname.substring(3));
       const newReportIndex = reports
         .map((report) => report.title)
         .indexOf(newReportName);
 
       if (newReportIndex != openReport) {
-        console.log("[Page] URL changed to ", window.location.pathname);
+        console.log("[Page] URL changed to ", newReportName);
+        console.log("[Page] Not inside ", reports
+          .map((report) => report.title));
         console.log(
           "[Page] Switching index from " + openReport + " to ",
           newReportIndex
@@ -91,10 +93,15 @@ export function ReportGrid({ reports }: { reports: ReportPage[] }) {
 
     setModalOffsetBox(getBox(gridRef.current)); // Save offset bounding box
     setOpenReport(index); // Save open report
-    setShouldAnimate(true);
   };
 
   const saveNavigation = () => {
+    if (!shouldAnimate) {
+      console.log('Enabled animation for ' + openReport);
+      setShouldAnimate(true);
+      return;
+    }
+
     let url = window.location.href.substring(0, window.location.href.indexOf(window.location.pathname)) + "/b/";
     if (openReport == -1) url += encodeURIComponent(brandName);
     else url += encodeURIComponent(brandName) + '/' + encodeURIComponent(reports[openReport].title.substring(reports[openReport].title.indexOf('/') + 1));
@@ -137,8 +144,8 @@ export function ReportGrid({ reports }: { reports: ReportPage[] }) {
           <Transition
             in={openReport != -1}
             timeout={duration}
-            onEntering={() => saveNavigation()}
-            onExiting={() => saveNavigation()}
+            onEntered={() => saveNavigation()}
+            onExited={() => saveNavigation()}
           >
             {(state) => (
               <div>

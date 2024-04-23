@@ -77,13 +77,13 @@ const BRAND_HTML_MAP = {
         endToken: "</ul>",
     },
 
-    REFERENCES: {
-        startToken: "<div class=\"mw-references-wrap\">",
-        endToken: "</div>",
-    },
+    // REFERENCES: {
+    //     startToken: "<div class=\"mw-references-wrap\">",
+    //     endToken: "</div>",
+    // },
 
     IMPORTED_REFERENCES: {
-        startToken: "<div class=\"mw-references-wrap mw-references-columns\">",
+        startToken: "<div class=\"mw-references-wrap",
         endToken: "</div>",
     },
 }
@@ -151,18 +151,24 @@ function adoptLinks(htmlString: string): string {
 }
 
 // Improve reference format for imported MW HTML
-function fixReferenceIds(htmlString: string): string {
-    const [start, ...splitStr] = htmlString.split('li id=\"');
+function fixReferenceIds(htmlString: string, tag: string): string {
+    const [start, ...splitStr] = htmlString.split('id=\"cite_');
 
     if (!splitStr || splitStr.length == 0)
         return htmlString;
 
-    const fixedStr = splitStr.map(str => {
-        const id = str.substring(0, str.indexOf('"'));
-        return id + '" name="' + str;
-    }).join('li id=\"');
+    const fixedAnchors = splitStr.join('id=\"' + tag + '_cite_');
 
-    return start + 'li id=\"' + fixedStr;
+    const htmlStr2 = start + 'id=\"' + tag + '_cite_' + fixedAnchors;
+
+    const [start2, ...splitStr2] = htmlStr2.split('href=\"#cite_');
+
+    if (!splitStr2 || splitStr2.length == 0)
+        return htmlStr2;
+
+    const fixedHrefs = splitStr2.join('href=\"#' + tag + '_cite_');
+
+    return start2 + 'href=\"#' + tag + '_cite_' + fixedHrefs;
 }
 
 
@@ -203,9 +209,9 @@ export async function fetchBrandPage(pageName: string, revalidate?: boolean): Pr
         industry: locateParam(datatableHTMLString, BRAND_HTML_MAP.INDUSTRY),
         brands: adoptLinks(locateParam(datatableHTMLString, BRAND_HTML_MAP.BRANDS)),
         products: locateParam(datatableHTMLString, BRAND_HTML_MAP.PRODUCTS),
-        description: parseWikipediaExcerpts(recontextualizeLinks(locateParam(pageResponse, BRAND_HTML_MAP.SUMMARY))),
-        references: fixReferenceIds(locateParam(pageResponse, BRAND_HTML_MAP.REFERENCES)),
-        importedReferences: locateParams(pageResponse, BRAND_HTML_MAP.IMPORTED_REFERENCES).map(str => { return fixReferenceIds(str) }),
+        description: fixReferenceIds(parseWikipediaExcerpts(recontextualizeLinks(locateParam(pageResponse, BRAND_HTML_MAP.SUMMARY)), 'brand'), 'brand'),
+        // references: fixReferenceIds(locateParam(pageResponse, BRAND_HTML_MAP.REFERENCES), 'brand_'),
+        importedReferences: locateParams(pageResponse, BRAND_HTML_MAP.IMPORTED_REFERENCES).map((str, index) => { return fixReferenceIds(str, 'brand' + index).substring(2) }),
         reportNames: locateParam(pageResponse, BRAND_HTML_MAP.REPORTS).split("title=\"")
             .map((str) => {
                 return str.substring(0, str.indexOf("\""));
@@ -243,7 +249,7 @@ export async function fetchReportPages(pageNames: string[], revalidate?: boolean
                 type: type,
                 timeframe: locateParam(dataResponse, REPORT_HTML_MAP.TIMEFRAME),
                 preview: pagePreviewResponses[index],
-                content: renderHTMLString(recontextualizeLinks(parseWikipediaExcerpts(locateParam(pageResponse, REPORT_HTML_MAP.CONTENT)))),
+                content: renderHTMLString(recontextualizeLinks(fixReferenceIds(parseWikipediaExcerpts(locateParam(pageResponse, REPORT_HTML_MAP.CONTENT), 'report'), 'report' + index))),
             };
         }
     );
@@ -254,19 +260,19 @@ export async function fetchReportPages(pageNames: string[], revalidate?: boolean
 
 
 
-function parseWikipediaExcerpts(htmlString: string): string {
+function parseWikipediaExcerpts(htmlString: string, refTag: string): string {
     if (htmlString.includes(WE_HEADER)) {
         const [beforeExcerpt, ...excerptSections] = htmlString.split(WE_HEADER); // Split into each excerpt
 
         if (DEBUG) console.log('[Wikipedia Excerpt] Found excerpts: ', excerptSections.length);
 
         return beforeExcerpt + WE_HEADER + excerptSections.map((rawExcerptSection, index) => {
-            const [beforeRefs, afterRefs] = rawExcerptSection.split(BRAND_HTML_MAP.IMPORTED_REFERENCES.startToken);
+            const [beforeImpRefs, afterImpRefs] = rawExcerptSection.split(BRAND_HTML_MAP.IMPORTED_REFERENCES.startToken);
             var excerptSection;
-            if (!afterRefs)
-                excerptSection = beforeRefs;
+            if (!afterImpRefs)
+                excerptSection = beforeImpRefs;
             else
-                excerptSection = beforeRefs + afterRefs.substring(afterRefs.indexOf(BRAND_HTML_MAP.IMPORTED_REFERENCES.endToken) + BRAND_HTML_MAP.IMPORTED_REFERENCES.endToken.length);
+                excerptSection = beforeImpRefs + afterImpRefs.substring(afterImpRefs.indexOf(BRAND_HTML_MAP.IMPORTED_REFERENCES.endToken) + BRAND_HTML_MAP.IMPORTED_REFERENCES.endToken.length);
 
             // Check paragraph classname
             var paragraphLength = Number(excerptSection.substring(excerptSection.indexOf('num-paragraphs-') + 'num-paragraphs-'.length, excerptSection.indexOf('\"')));
@@ -277,7 +283,7 @@ function parseWikipediaExcerpts(htmlString: string): string {
             const [excerpt, ...afterExcerpts] = excerptSection.split(WE_END);
             const [beforeP, ...pTags] = excerpt.split('<p');
 
-            return beforeP + pTags.map((pTag) => {
+            const fixedStr = beforeP + pTags.map((pTag) => {
                 const [insideP, afterP] = pTag.split('</p>');
                 const pContent = insideP.substring(insideP.indexOf('>') + 1);
                 if (paragraphLength == 0 || pContent.trim() == '' || pContent.trim() == '<br/>')
@@ -285,6 +291,8 @@ function parseWikipediaExcerpts(htmlString: string): string {
                 paragraphLength--;
                 return '<p ' + pTag;
             }).join('') + WE_END + afterExcerpts.join(WE_END);
+
+            return fixReferenceIds(fixedStr, refTag + index)
         }).join(WE_HEADER);
 
     }

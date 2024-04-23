@@ -226,6 +226,7 @@ export class IconTableEditor {
     }
 
     setFlag(flag: IconFlag, key: string = this.currentKey) {
+        this.madeEdits = true;
         this.getEntry(key).flag = flag;
     }
 

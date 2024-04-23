@@ -246,13 +246,20 @@ div.skeleton-wrap {
 
 .card-border {
   position: absolute;
-  top: -1em;
-  bottom: -0.35em;
   left: -1em;
-  width: 16.66666666666%;
 
-  border: 6px solid rgba(7, 9, 15, 0.25) !important;
-  border-right: none !important;
+  /* Brackets */
+  /* top: -1em; 
+  bottom: -0.35em; */
+  /* width: 16.66666666666%; */
+
+  /* Just margin */
+  top: -0.35em;
+  bottom: 0.7em;
+  width: 0;
+
+  border-left: 6px solid rgba(7, 9, 15, 0.25) !important;
+  /* border-right: none !important; */
 }
 
 .card .right {
