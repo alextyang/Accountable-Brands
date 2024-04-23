@@ -44,6 +44,8 @@ export async function setFlag(tableName: string, key: string, flag: IconFlag, ne
     }
     else if (flag == 'replaced' && newIcon) {
         table.setIcon(newIcon);
+        while (table.getUncertainty() > 0)
+            table.addUncertainty(-1);
     }
     else if (flag == 'skipped') {
         table.removeIcon();

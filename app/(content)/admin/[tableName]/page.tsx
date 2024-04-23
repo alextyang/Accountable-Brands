@@ -1,6 +1,6 @@
 "use server";
 
-import { BAD_SCORE_CUTOFF } from "@/app/lib/utils/iconPicker/iconSearch";
+import { BAD_SCORE_CUTOFF, GOOD_SCORE_CUTOFF } from "@/app/lib/utils/iconPicker/iconSearch";
 import { FlagsButton, RefreshButton, SwitchPageButton } from "./buttons";
 import { IconTableEditor } from "@/app/lib/utils/iconPicker/iconTable";
 import { Icon } from "@/app/lib/utils/iconPicker/iconDefinitions";
@@ -12,7 +12,8 @@ export default async function Page({ params }: { params: { tableName: string } }
 
 
     // Extract queries as keys from dictionary
-    const keys = table.getQueries();
+    const keys = table.getUnflaggedQueries();
+    keys.push('', ...table.getFlaggedQueries());
 
     return (
         <div className="flex flex-col p-12 gap-10">
@@ -25,6 +26,8 @@ export default async function Page({ params }: { params: { tableName: string } }
             </div>
             {
                 keys.map(function (key, index) { // FOR EACH: icon query log
+                    if (key.length == 0)
+                        return (<p className="text-base font-medium opacity-75  mx-auto -mb-6 mt-2" >Reviewed Entries</p>);
                     table.setKey(key);
                     var uncertainty = table.getUncertainty();
 
@@ -32,7 +35,7 @@ export default async function Page({ params }: { params: { tableName: string } }
                     var priorityColor: string;
                     if (uncertainty >= 1)
                         priorityColor = 'red'; // No icon provided
-                    else if (uncertainty > 0)
+                    else if (uncertainty > GOOD_SCORE_CUTOFF)
                         priorityColor = 'yellow'; // Low-scoring icon provided
                     else
                         priorityColor = 'green'; // High-scoring icon provided

@@ -271,7 +271,8 @@ div.skeleton-wrap {
 
 .wikipedia-excerpt .error,
 .infobox,
-.navigation-not-searchable {
+.navigation-not-searchable,
+table {
   display: none;
 }
 

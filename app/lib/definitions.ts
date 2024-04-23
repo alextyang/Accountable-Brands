@@ -6,9 +6,12 @@ export const B_URL = process.env.NODE_ENV == "development" ? "http://localhost:3
 
 // Socials
 export const FACEBOOK_LINK = '';
-export const INSTAGRAM_LINK = '';
+export const INSTAGRAM_LINK = 'https://www.instagram.com/accountablebrands/';
 export const TWITTER_LINK = '';
+export const MASTODON_LINK = 'https://mastodon.social/@accountability';
+export const BLUESKY_LINK = 'https://bsky.app/profile/accountablebrands.bsky.social';
 export const PATREON_LINK = '';
+export const GIVEBUTTER_LINK = '';
 
 export const DEBUG = false;
 

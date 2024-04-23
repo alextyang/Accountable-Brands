@@ -1,9 +1,9 @@
 "use client";
 
-import { useTransition } from 'react';
+import { Dispatch, SetStateAction, useState, useTransition } from 'react';
 import { setFlag, refreshTable } from '../../../lib/utils/iconPicker/actions';
 import { usePathname, useRouter } from 'next/navigation';
-import { IconEntryDescription, IconFlag } from '@/app/lib/utils/iconPicker/iconDefinitions';
+import { Icon, IconEntryDescription, IconFlag } from '@/app/lib/utils/iconPicker/iconDefinitions';
 
 // COMPONENT: Option to refresh icon table
 export function RefreshButton({ tableName }: { tableName: string }) {
@@ -40,6 +40,8 @@ export function FlagsButton({ iconKey, flag, desc, color, tableName }: { iconKey
 
     const router = useRouter();
     const [isTransitionStarted, startTransition] = useTransition();
+    const [isSearching, setIsSearching] = useState(false);
+    const [replacementIcon, setReplacementIcon] = useState<Icon | undefined>(undefined);
 
 
 
@@ -67,6 +69,9 @@ export function FlagsButton({ iconKey, flag, desc, color, tableName }: { iconKey
         buttonStack.push({ flag: 'approved', icon: "M200-120v-680h360l16 80h224v400H520l-16-80H280v280h-80Zm300-440Zm86 160h134v-240H510l-16-80H280v240h290l16 80Z", viewbox: '0 -960 960 960', color: 'green', title: desc.flagApprove, ...buttonDefaults });
 
     buttonStack = buttonStack.map((button) => {
+        if (button.flag == 'skipped') {
+            button.color = 'green'
+        }
         if (flag == button.flag) {
             button.bgColor = button.color;
             button.borderColor = button.color;
@@ -76,20 +81,40 @@ export function FlagsButton({ iconKey, flag, desc, color, tableName }: { iconKey
             if (button.flag != 'replaced')
                 button.flag = 'none';
         }
+        if (isSearching && button.flag == 'replaced') {
+            button.icon = "M112.587-152.348v-655.304L889.565-480 112.587-152.348ZM200-283.587 665.152-480 200-676.413v132.826L443.587-480 200-416.413v132.826Zm0 0v-392.826 392.826Z";
+            button.viewbox = '-90 -1025 1150 1100';
+            button.title = 'Replace icon';
+        }
         return button;
     });
+
+
 
 
     return (
         <div className="cursor-pointer flex flex-row" >
             <p className='hidden bg-red bg-yellow bg-green bg-black border-red border-yellow border-green border-black text-red text-yellow text-green text-black hover:bg-red hover:bg-yellow hover:bg-green hover:bg-tan hover:border-red hover:border-yellow hover:border-green hover:border-black hover:text-black hover:text-tan hover:text-red hover:text-yellow hover:text-green fill-[currentColor] '></p>
             {
+                isSearching ? (
+                    <IconSearchWidget setReplacementIcon={setReplacementIcon} />
+                ) : undefined
+            }
+            {
                 buttonStack.map((button) => {
+                    if (isSearching && button.flag != 'replaced')
+                        return;
                     return (
-                        <div className={"w-8 h-8 flex items-center justify-center border-y-4 first-of-type:border-l-4 first-of-type:pr-1 last:border-r-4 last:pl-1 bg-" + button.bgColor + " hover:bg-" + button.color + " border-" + button.borderColor + " hover:border-" + button.color + " text-" + button.iconColor + " hover:text-" + button.hoverIconColor} key={button.flag + iconKey} title={button.title} onClick={async () => {
-                            if (button.flag == 'replaced')
-                                return;
-                            const action = setFlag.bind(null, tableName, iconKey, button.flag as IconFlag);
+                        <div className={"w-8 h-8 z-20 flex items-center justify-center border-y-4 first-of-type:border-l-4 first-of-type:pr-1 last:border-r-4 last:pl-1 hover:z-30 bg-" + button.bgColor + " hover:bg-" + button.color + " border-" + button.borderColor + " hover:border-" + button.color + " text-" + button.iconColor + " hover:text-" + button.hoverIconColor} key={button.flag + iconKey} title={button.title} onClick={async () => {
+                            if (button.flag == 'replaced' && !isSearching)
+                                return setIsSearching(true);
+                            else if (button.flag == 'replaced' && isSearching) {
+                                setIsSearching(false);
+                                if (!replacementIcon)
+                                    return;
+                            }
+
+                            const action = setFlag.bind(null, tableName, iconKey, button.flag as IconFlag, replacementIcon);
                             await action();
                             startTransition(router.refresh);
                         }}>
@@ -100,3 +125,70 @@ export function FlagsButton({ iconKey, flag, desc, color, tableName }: { iconKey
             }</div>
     );
 }
+
+
+
+import Fuse, { FuseResult } from "fuse.js"; // Search Lib
+import icons from "@/icons.json"; // SVG Paths
+const industryIcons = icons as Icon[];
+
+const fuseProductOptions = {
+    shouldSort: true,
+    includeScore: true,
+    ignoreLocation: true,
+    ignoreFieldNorm: true,
+    keys: ["name"],
+};
+const fuseProductsSearch = new Fuse(industryIcons, fuseProductOptions);
+
+function IconSearchWidget({ setReplacementIcon }: { setReplacementIcon: Dispatch<SetStateAction<Icon | undefined>> }) {
+    const [searchResults, setSearchResults] = useState<FuseResult<Icon>[]>([]);
+    const [searchQuery, setSearchQuery] = useState<string>('');
+
+    return (
+        <div className='w-32 h-8 relative flex items-center justify-center border-y-4 border-l-4 border-black '>
+            <input type="text" value={searchQuery} className='absolute border-none top-0 bottom-0 left-0 right-0 p-2 pr-0 bg-tan' onChange={(e) => {
+                if (searchQuery != e.target.value)
+                    setSearchQuery(e.target.value);
+                setSearchResults(fuseProductsSearch.search(e.target.value));
+            }} />
+            <div className='absolute z-30 top-6 -left-1 -right-8 flex flex-col border-x-4 border-b-4 border-black bg-tan '>
+                {
+                    searchResults.map((result, index) => {
+                        const icon = result.item;
+                        return (
+                            <div className='w-full h-12 border-t-4 border-black relative hover:text-tan hover:bg-black cursor-pointer' key={result.item.name} onClick={() => {
+                                setReplacementIcon(result.item);
+                                setSearchResults([]);
+                                setSearchQuery(result.item.name);
+                            }}>
+                                <svg className={' mt-1 ml-1 fill-[currentColor]'} xmlns="http://www.w3.org/2000/svg" height='34' width='34' viewBox={icon?.viewbox ? icon.viewbox : "0 -960 960 960"}><path d={icon?.path} /></svg>
+                                <div className='absolute top-2 left-[44px] bottom-0 right-2 overflow-hidden'>
+                                    <p className=" text-[9px] leading-none line-clamp-2 ">{icon?.name}</p>
+                                    <ScoreIcon className="text-xs opacity-60 absolute bottom-2 " score={result.score}></ScoreIcon>
+                                </div>
+                            </div>
+                        )
+                    })
+                }
+            </div>
+
+        </div>
+    )
+}
+
+
+// COMPONENT: Small visual indicator of a score's confidence
+function ScoreIcon({ className, score }: { className: string, score?: number }) {
+    if (!score) return '';
+    var color = 'green';
+    if (score > 0.25)
+        color = 'red';
+
+    return (<div className={className + ' w-12 h-1.5 border-2 border-' + color + ' '}>
+        <div style={{ width: ((1 - score) * 100) + '%' }} className={"bg-" + color + " absolute left-0 top-0 bottom-0"}>
+
+        </div>
+    </div>);
+
+} 

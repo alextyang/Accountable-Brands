@@ -181,6 +181,31 @@ export class IconTableEditor {
         });
     }
 
+    // Get query list
+    getFlaggedQueries(): string[] {
+        const table = this.workingTable
+        return Object.keys(this.workingTable).sort((first: string, second: string) => {
+            return (
+                table[second].uncertainty -
+                table[first].uncertainty);
+        }).filter((entry) => {
+            return table[entry].flag != 'none';
+        });
+    }
+
+    // Get query list
+    getUnflaggedQueries(): string[] {
+        const table = this.workingTable
+        return Object.keys(this.workingTable).sort((first: string, second: string) => {
+            const strCompare = second.substring(second.indexOf('(') + 1, second.indexOf(')')).localeCompare(first.substring(first.indexOf('(') + 1, first.indexOf(')')));
+            if (strCompare == 0)
+                return table[second].uncertainty - table[first].uncertainty;
+            return strCompare;
+        }).filter((entry) => {
+            return table[entry].flag == 'none';
+        });
+    }
+
 
     // Icon entries
     hasIcon(key: string = this.currentKey): boolean {

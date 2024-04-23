@@ -147,7 +147,7 @@ async function BrandSummary({ brandData }: { brandData: BrandPageType }) {
                                     </span>
                                 </div>
                                 <div className='w-full text-base leading-7 tracking-wide md:pl-12 md:text-base md:w-auto'> {/* Brands */}
-                                    <div className='md:text-pretty'>{brandData.brands && brandData.brands.length > 0 ? renderHTMLString("<span class=\"opacity-90 bg-tan text-black px-1.5 mr-3 font-medium\">Sub-brands</span>" + brandData.brands) : ''}</div>
+                                    <div className='md:text-pretty'>{brandData.brands && brandData.brands.length > 0 ? renderHTMLString("<span class=\"opacity-90 bg-tan text-black px-1.5 mr-3 font-medium text-nowrap\">Sub-brands</span>" + brandData.brands) : ''}</div>
                                 </div>
                             </div>
                         </div>

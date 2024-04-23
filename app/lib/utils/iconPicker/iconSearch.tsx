@@ -81,6 +81,8 @@ export async function findIcons(queries: string[], excludeIcons: string[] = [], 
             else if (existingSkipIndex != -1 && !table.getSkips()[existingSkipIndex].winningQuery) { // Icon is blacklisted or duplicate
                 if (DEBUG) console.log("B " + query + " (" + startFrom + ") = " + searchResults[0].item.name);
 
+                table.setUncertainty(2);
+
                 // Move to next result
                 searchResults.shift();
             }
@@ -112,7 +114,10 @@ export async function findIcons(queries: string[], excludeIcons: string[] = [], 
                 table.setFlag('none');
 
                 // Score > 0 if skips were made, less than 0 if ideal was picked
-                table.setUncertainty(searchResults[0].score - GOOD_SCORE_CUTOFF);
+                table.setUncertainty(searchResults[0].score);
+
+                if (table.getFlag() == 'removed')
+                    table.setFlag('none');
 
                 // Log remaining choices in table
                 searchResults.shift();
@@ -144,7 +149,7 @@ export async function findIcons(queries: string[], excludeIcons: string[] = [], 
     }
 
     // If there weren't even options, flag log entry as most important
-    if (table.getSkips().length == 0 && table.getUncertainty() > -1 && !table.hasFlag())
+    if (table.getSkips().length == 0 && table.getUncertainty() > -1 && table.getFlag() != 'skipped')
         table.setUncertainty(2);
 
     if (startFrom == queries.length) {
