@@ -1,39 +1,123 @@
 import { promises as fs } from "fs";
-import { Icon, IconEntry, IconSkip, IconTable } from "./iconDefinitions";
+import { DEBUG, Icon, IconEntry, IconEntryDescription, IconFlag, IconSkip, IconTable } from "./iconDefinitions";
 import { GOOD_SCORE_CUTOFF } from "./iconSearch";
 
 const decoder = new TextDecoder("utf-8");
 
+const tableChanges: {
+    [tableName: string]: IconTable[];
+} = {
+    "solo": [],
+    "batch": []
+};
+let isWriting = false;
+let timeoutID: string | number | NodeJS.Timeout | undefined;
 
+if (timeoutID == undefined)
+    timeoutID = setTimeout(saveTablesToFile, 5 * 1000);
+
+export async function tryTableSave(tableName: string) {
+    await saveTabletoFile(tableName);
+}
+
+async function saveTablesToFile() {
+    if (tableChanges['solo'].length > 0 || tableChanges['batch'].length > 0)
+        if (DEBUG) console.log("[Queue] Trying periodic save of " + tableChanges['solo'].length + ", " + tableChanges['batch'].length + " (ID " + timeoutID + ")");
+
+    await saveTabletoFile("solo");
+    await saveTabletoFile("batch");
+
+    clearTimeout(timeoutID);
+    timeoutID = setTimeout(saveTablesToFile, 5 * 1000);
+}
+
+async function saveTabletoFile(tableName: string) {
+    if (isWriting || tableChanges[tableName].length == 0) {
+        if (tableChanges[tableName].length != 0)
+            console.log("[Queue] Skipping save request of " + tableChanges[tableName].length + " to " + tableName);
+        return undefined;
+    }
+    isWriting = true;
+
+
+    if (DEBUG) console.log("[File] Saving " + tableName + " table queue (" + tableChanges[tableName].length + ")");
+
+    const tableQueue = JSON.parse(JSON.stringify(tableChanges[tableName])) as IconTable[];
+    tableChanges[tableName].length = 0;
+
+    if (DEBUG) console.log("[File] Formatted " + tableName + " table queue (" + tableQueue.length + ")");
+
+
+    const fileTable = await JSON.parse(
+        await fs.readFile(tableName + "Icons.json", { encoding: "utf8" })
+    ) as IconTable;
+
+    tableQueue.unshift(fileTable);
+
+    while (tableQueue.length > 1) {
+        tableQueue[tableQueue.length - 2] = Object.assign(tableQueue[tableQueue.length - 2], tableQueue[tableQueue.length - 1]);
+        tableQueue.pop();
+    }
+
+
+    await fs.writeFile(
+        tableName + "Icons.json",
+        JSON.stringify(tableQueue[0]),
+        "utf-8"
+    );
+
+    if (DEBUG) console.log("[File] Saved " + tableName + " table queue (" + (tableQueue.length - 1) + ")");
+    isWriting = false;
+}
 
 export class IconTableEditor {
-    table: IconTable;
     currentKey: string;
+    tableName: string;
+    workingTable: IconTable;
+    madeEdits: boolean;
 
-    constructor() {
-        this.table = {};
+    constructor(tableName: string) {
+        this.workingTable = {};
+        this.tableName = tableName;
         this.currentKey = '';
+        this.madeEdits = false;
     }
 
-    async saveIconTable(tableName = "") {
-        await fs.writeFile(
-            tableName + "Icons.json",
-            JSON.stringify(this.table),
-            "utf-8"
+    async loadTable() {
+        const loadedTable = await JSON.parse(
+            await fs.readFile(this.tableName + "Icons.json", { encoding: "utf8" })
         );
-        console.log("[IconTable] Saved to " + tableName + "Icons.json");
+        this.workingTable = Object.assign(loadedTable, this.workingTable);
+
+        if (DEBUG) console.log("[IconTable] Loaded working table (" + Object.keys(this.workingTable).length + " entries) for " + this.tableName);
     }
 
-    async loadIconTable(tableName = "") {
-        if (Object.keys(this.table).length > 0)
-            return;
-        console.log("[IconTable] Reading " + tableName + "Icons.json");
-        this.table = JSON.parse(
-            await fs.readFile(tableName + "Icons.json", { encoding: "utf8" })
-        );
+    async updateTable() {
+        while (isWriting) {
+            if (DEBUG) console.log("[IconTable] Waiting to sync working table " + this.tableName);
+            await new Promise(resolve => setTimeout(resolve, 200));
+        }
+
+        this.loadTable();
     }
 
-    // Active query memory
+    async saveTable(tableName: string = this.tableName) {
+        while (isWriting) {
+            if (DEBUG) console.log("[IconTable] Waiting to save to " + this.tableName);
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+
+        if (DEBUG) console.log("[IconTable] Saving working table (" + Object.keys(this.workingTable).length + " entries) to " + this.tableName + " table queue (" + tableChanges[this.tableName].length + " objects)");
+
+        if (this.madeEdits)
+            tableChanges[this.tableName].push(this.workingTable);
+        // await tryTableSave(this.tableName);
+        this.madeEdits = false;
+
+        this.updateTable();
+    }
+
+    // Active query memory 
     setKey(key: string) {
         return this.currentKey = key;
     }
@@ -42,19 +126,36 @@ export class IconTableEditor {
         return this.currentKey;
     }
 
+    // If a new icon should be attempted for this entry
+    shouldSearch(key: string = this.currentKey): boolean {
+        return !this.hasEntry() || (!this.hasIcon() && (this.getFlag() == 'removed' || this.getFlag() == 'none'));
+    }
+
     // Top level query-based entries
     hasEntry(key: string = this.currentKey): boolean {
-        return this.table.hasOwnProperty(key);
+        return key in this.workingTable;
     }
 
     getEntry(key: string = this.currentKey): IconEntry {
         if (!this.hasEntry(key))
-            return { skips: [], uncertainty: 2 };
-        return this.table[key];
+            this.createEntry(key);
+        return this.workingTable[key];
     }
 
     createEntry(key: string = this.currentKey) {
-        this.table[key] = { skips: [], uncertainty: 0 };
+        let skips = [], flag: IconFlag = 'none';
+        this.madeEdits = true;
+
+        if (this.workingTable[key]) {
+            while (this.workingTable[key].skips.length > 0) {
+                if (!this.workingTable[key].skips[0].winningQuery)
+                    skips.push(this.workingTable[key].skips[0]);
+                this.workingTable[key].skips.shift();
+            }
+            flag = this.workingTable[key].flag;
+        }
+
+        this.workingTable[key] = { skips: skips, uncertainty: 0, flag: flag };
     }
 
     // Uncertainty score
@@ -72,8 +173,8 @@ export class IconTableEditor {
 
     // Get query list
     getQueries(): string[] {
-        const table = this.table
-        return Object.keys(this.table).sort((first: string, second: string) => {
+        const table = this.workingTable
+        return Object.keys(this.workingTable).sort((first: string, second: string) => {
             return (
                 table[second].uncertainty -
                 table[first].uncertainty);
@@ -83,26 +184,28 @@ export class IconTableEditor {
 
     // Icon entries
     hasIcon(key: string = this.currentKey): boolean {
-        return this.hasEntry(key) && this.table[key].hasOwnProperty('icon');
+        return this.hasEntry(key) && this.workingTable[key].hasOwnProperty('icon');
     }
 
     getIcon(key: string = this.currentKey): Icon | undefined {
         return this.getEntry(key).icon;
     }
 
-    setIcon(icon: Icon, key: string = this.currentKey) {
+    setIcon(icon: Icon | undefined, key: string = this.currentKey) {
+        if (!icon)
+            this.removeIcon(key);
         this.getEntry(key).icon = icon;
     }
 
     removeIcon(key: string = this.currentKey) {
         if (this.hasIcon(key))
-            this.logSkips({ winningQuery: 'Rejected', icon: this.getEntry(key).icon, score: this.getEntry(key).score });
+            this.getEntry(this.currentKey).skips.unshift({ icon: this.getEntry(key).icon, score: this.getEntry(key).score });
         this.getEntry(key).icon = undefined;
     }
 
     // Score entries
     hasScore(key: string = this.currentKey): boolean {
-        return this.hasEntry(key) && this.table[key].hasOwnProperty('score');
+        return this.hasEntry(key) && this.workingTable[key].hasOwnProperty('score');
     }
 
     getScore(key: string = this.currentKey): number | undefined {
@@ -113,57 +216,107 @@ export class IconTableEditor {
         this.getEntry(key).score = score;
     }
 
+    // Manual flagging
+    getFlag(key: string = this.currentKey): IconFlag {
+        return this.getEntry(key).flag;
+    }
+
+    hasFlag(key: string = this.currentKey): boolean {
+        return this.getEntry(key).flag != 'none';
+    }
+
+    setFlag(flag: IconFlag, key: string = this.currentKey) {
+        this.getEntry(key).flag = flag;
+    }
+
 
     // Skipped icons for a query
     getSkips(key: string = this.currentKey): IconSkip[] {
         return this.getEntry(key).skips
     }
 
+    getBlacklist(key: string = this.currentKey): (string | undefined)[] {
+        return this.getEntry(key).skips.map((skip) => {
+            return !skip.winningQuery ? skip.icon?.name : undefined;
+        })
+    }
+
+    clearBlacklist(key: string = this.currentKey) {
+        let skips = [];
+        while (this.workingTable[key].skips.length > 0) {
+            if (this.workingTable[key].skips[0].winningQuery)
+                skips.push(this.workingTable[key].skips[0]);
+            this.workingTable[key].skips.shift();
+        }
+        this.workingTable[key].skips = skips;
+    }
+
     logSkips(...skips: IconSkip[]) {
         this.getEntry(this.currentKey).skips.push(...skips);
     }
 
-    getEntryDetails(key: string = this.currentKey): { summary: string, confirm?: string, reject?: string } {
+
+    getEntryDetails(key: string = this.currentKey): IconEntryDescription {
         const uncertainty = this.getUncertainty(key);
         const score = this.getScore(key);
-        const numSkips = this.getSkips(key).length;
+        const flag = this.getFlag(key);
+        const skips = this.getSkips(key);
+        const hasSkip = score && skips && skips.length > 0 && skips[0].score && skips[0].score < score;
+
+        const entryDetails: IconEntryDescription = { summary: 'Error with entry ' };
 
         if (this.hasIcon(key)) { // Icon found
-            if (uncertainty <= -1) // Manual pick
-                return { summary: 'Manually selected for ', reject: 'Mark as unsuitable' };
+            entryDetails.flagApprove = 'Flag as suitable';
+            entryDetails.flagReplaced = 'Find replacement';
+            entryDetails.flagRemove = 'Flag as unsuitable';
+            entryDetails.flagSkip = 'Flag redundant/unnecessary';
+
+            if (flag == 'approved') // Manual pick
+                return { ...entryDetails, summary: 'Approved for ', flagReplaced: 'Edit icon', flagApprove: 'Remove approval' };
+
+            if (flag == 'replaced') // Manual pick
+                return { ...entryDetails, summary: 'Manually selected for ', flagReplaced: 'Edit replacement', flagApprove: undefined };
 
             if (score && score <= GOOD_SCORE_CUTOFF) { // Good score
-                if (numSkips == 0) // No skips
-                    return { summary: 'Used ideal icon for ', reject: 'Mark as unsuitable' };
-                else // Skips made
-                    return { summary: 'Found fallback for ', reject: 'Mark as unsuitable' };
+                if (hasSkip) // Skip made
+                    return { ...entryDetails, summary: 'Found fallback for ' };
+                else // No skips
+                    return { ...entryDetails, summary: 'Used ideal icon for ' };
+
             }
             else { // Poor score
                 if (uncertainty <= -1) // Manually confirmed
-                    return { summary: 'Approved fallback for ', reject: 'Mark as unsuitable' };
+                    return { ...entryDetails, summary: 'Approved fallback for ' };
 
-                if (numSkips == 0) // No skips
-                    return { summary: 'No good-scoring icon for ', confirm: 'Mark as suitable', reject: 'Mark as unnecessary' };
+                if (!hasSkip) // No skips
+                    return { ...entryDetails, summary: 'No good-scoring icon for ' };
                 else // Skips made
-                    return { summary: 'Poor-scoring fallback used for ', confirm: 'Mark as suitable', reject: 'Mark as redundant' };
+                    return { ...entryDetails, summary: 'Poor-scoring fallback used for ' };
             }
         }
         else { // No icon
-            if (uncertainty <= 0) { // Manually ignored
-                if (numSkips == 0) // No skips
-                    return { summary: 'Skipped unnecessary ', reject: 'Mark as necessary' };
+            entryDetails.flagReplaced = 'Find icon';
+
+            if (flag == 'removed')
+                entryDetails.flagRemove = 'Undo removal';
+
+            if (flag == 'skipped') { // Manually ignored
+                if (!hasSkip) // No skips
+                    return { ...entryDetails, summary: 'Skipped unnecessary ', flagSkip: 'Mark as necessary' };
                 else // Skips made
-                    return { summary: 'Skipped redundant ', reject: 'Mark as necessary' };
+                    return { ...entryDetails, summary: 'Skipped redundant ', flagSkip: 'Mark as necessary' };
             }
             else { // Not ignored
-                if (numSkips == 0) // No skips
-                    return { summary: 'Couldn\'t find icon for ', reject: 'Mark as unnecessary' };
+                entryDetails.flagRemove = 'Flag for replacement';
+
+                if (!hasSkip) // No skips
+                    return { ...entryDetails, summary: 'Couldn\'t find icon for ', flagSkip: 'Mark as unnecessary' };
                 else // Skips made
-                    return { summary: 'Couldn\'t find unique icon for ', reject: 'Mark as redundant' };
+                    return { ...entryDetails, summary: 'Couldn\'t find unique icon for ', flagSkip: 'Mark as redundant' };
             }
         }
 
-        return { summary: 'Error with ' };
+        return { ...entryDetails };
     }
 
 

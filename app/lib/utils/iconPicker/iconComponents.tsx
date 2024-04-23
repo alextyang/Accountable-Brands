@@ -23,16 +23,17 @@ export async function ProductIcons({
   if (DEBUG)
     console.log("\n\n[Icons] Product search: " + names);
 
+  var industryName = excludeIndustryName.substring(excludeIndustryName.indexOf(">") + 1, excludeIndustryName.lastIndexOf("<"));
 
 
   // Find the icon used for Industry
-  const industryIcon = findIcon(excludeIndustryName); // TODO: Check Industry Table
+  const industryIcon = await findIcon(industryName);
 
 
   // Recursively find best icons
   var results: Icon[];
   if (industryIcon)
-    results = await findIcons([excludeIndustryName.substring(excludeIndustryName.indexOf(">") + 1, excludeIndustryName.lastIndexOf("<")), ...names], [industryIcon.name], pageName, 1);
+    results = await findIcons([industryName, ...names], [industryIcon.name], pageName, 1);
   else
     results = await findIcons([...names], [], pageName);
 
@@ -54,8 +55,7 @@ export async function ProductIcons({
 }
 
 // COMPONENT: Best icon pick for Industry
-// TODO: Create Industry Icon Table
-export function IndustryIcon({
+export async function IndustryIcon({
   className = "",
   name = "",
   color = THEME.COLORS.BLACK,
@@ -64,7 +64,9 @@ export function IndustryIcon({
   name: string;
   color?: string;
 }) {
-  const iconSearchResult = findIcon(name);
+  var industryName = name.substring(name.indexOf(">") + 1, name.lastIndexOf("<"));
+
+  const iconSearchResult = await findIcon(industryName);
 
   return (
     <div className={className + " inline icon-svg"}>

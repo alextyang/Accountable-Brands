@@ -9,12 +9,17 @@ export type IconSkip = { // TYPE: Log for an failed icon pick
     icon?: Icon;
 };
 
+export type IconFlag = 'approved' | 'removed' | 'skipped' | 'replaced' | 'none';
+
 export type IconEntry = {
     skips: IconSkip[];
     icon?: Icon;
     score?: number;
     uncertainty: number;
+    flag: IconFlag;
 }
+
+export type IconEntryDescription = { summary: string, flagApprove?: string, flagSkip?: string, flagReplaced?: string, flagRemove?: string };
 
 export type IconTable = { // TYPE: Logs for picked icons
     [query: string]: IconEntry;

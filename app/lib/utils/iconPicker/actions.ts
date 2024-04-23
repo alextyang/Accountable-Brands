@@ -1,48 +1,59 @@
 "use server";
 
-import { IconTableEditor } from "./iconTable";
-
+import { Icon, IconFlag } from "./iconDefinitions";
+import { IconTableEditor, tryTableSave } from "./iconTable";
 
 // SERVER ACTION: Ignore a given icon error/conflict
-export async function rejectChoice(tableName: string, key: string) {
-    console.log('[Admin Action] Rejecting choice ' + tableName + ' - ' + key + ' to ignore.');
+export async function refreshTable(tableName: string) {
 
-    const table = new IconTableEditor();
-    await table.loadIconTable(tableName);
-    table.setKey(key);
+    await tryTableSave(tableName);
 
-
-    if (!table.hasEntry())
-        return key;
-
-
-    table.removeIcon();
-
-    if (table.getUncertainty() > 0)
-        table.setUncertainty(0);
-    else
-        table.setUncertainty(2);
-
-    await table.saveIconTable(tableName);
-
-    console.log(table.table);
-    return key;
+    return tableName;
 }
 
 // SERVER ACTION: Ignore a given icon error/conflict
-export async function confirmChoice(tableName: string, key: string) {
-    console.log('[Admin Action] Confirming ' + tableName + ' - ' + key + ' to ignore.')
+export async function setFlag(tableName: string, key: string, flag: IconFlag, newIcon?: Icon) {
+    console.log('[Admin] Flagging ' + key + ' - ' + tableName + ' to ' + flag);
 
-    const table = new IconTableEditor();
-    await table.loadIconTable(tableName);
+    const table = new IconTableEditor(tableName);
+    await table.loadTable();
     table.setKey(key);
 
     if (!table.hasEntry())
         return key;
 
-    while (table.getUncertainty() > -1)
-        table.addUncertainty(-1);
+    if (flag == 'none') {
+        const oldflag = table.getFlag();
+        if (oldflag == "approved")
+            table.addUncertainty(2);
+        else if (oldflag == 'removed') {
+            table.clearBlacklist();
+            table.setUncertainty(1);
+        }
+        else if (oldflag == 'skipped') {
+            table.clearBlacklist();
+            table.setUncertainty(2);
+        }
+    }
+    else if (flag == 'approved')
+        while (table.getUncertainty() > -1)
+            table.addUncertainty(-1);
+    else if (flag == 'removed') {
+        table.removeIcon();
+        table.setUncertainty(2);
+    }
+    else if (flag == 'replaced' && newIcon) {
+        table.setIcon(newIcon);
+    }
+    else if (flag == 'skipped') {
+        table.removeIcon();
+        table.setUncertainty(0);
+    }
 
-    await table.saveIconTable(tableName);
+
+    table.setFlag(flag);
+    await table.saveTable();
+    await tryTableSave(tableName);
+
     return key;
 }

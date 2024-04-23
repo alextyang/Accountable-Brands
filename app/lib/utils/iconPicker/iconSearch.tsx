@@ -1,7 +1,7 @@
 
 import Fuse, { FuseResult } from "fuse.js"; // Search Lib
-import { DEBUG, DEFAULT_INDUSTRY_ICON, Icon, IconSkip, IconTable } from "./iconDefinitions";
-
+import { DEFAULT_INDUSTRY_ICON, Icon, IconSkip, IconTable } from "./iconDefinitions";
+const DEBUG = true;
 
 import icons from "@/icons.json"; // SVG Paths
 const industryIcons = icons as Icon[];
@@ -12,7 +12,7 @@ import { IconTableEditor } from "./iconTable";
 const fuseIndustryOptions = {
     shouldSort: true,
     includeScore: true,
-    ignoreLocation: false,
+    ignoreLocation: true,
     ignoreFieldNorm: true,
     useExtendedSearch: true, // For finding an exact word match
     keys: ["name"],
@@ -33,32 +33,23 @@ export const BAD_SCORE_CUTOFF = 0.5; // Ignore icons with poor matches
 export const GOOD_SCORE_CUTOFF = 0.25; // Put good matches first
 
 
-export function findIcon(name: string): Icon {
-    // Isolate industry text from element, if needed
-    var iconName = name.substring(name.indexOf(">") + 1, name.lastIndexOf("<"));
-
-    const iconSearch = fuseIndustrySearch.search("\"" + iconName + "\"");
-
-    if (DEBUG)
-        console.log("[Icons] Industry icon found: " + iconName + " - " + iconSearch[0]?.item?.name + " (" + iconSearch[0]?.score + ")");
-
-    return iconSearch[0] && iconSearch[0].score && iconSearch[0].score < BAD_SCORE_CUTOFF
-        ? iconSearch[0].item
-        : DEFAULT_INDUSTRY_ICON;
+export async function findIcon(name: string): Promise<Icon> {
+    const result = await findIcons([name], [], '', 0, new IconTableEditor("solo"));
+    return result[0] ? result[0] : DEFAULT_INDUSTRY_ICON;
 }
 
 
 // Recursively find new icons for each query 
-export async function findIcons(queries: string[], excludeIcons: string[] = [], tag: string, startFrom = 0, table = new IconTableEditor()): Promise<Icon[]> {
+export async function findIcons(queries: string[], excludeIcons: string[] = [], tag: string, startFrom = 0, table = new IconTableEditor("batch")): Promise<Icon[]> {
     if (!queries[startFrom])
         return [];
     let query = queries[startFrom];
-    const key = query + ' (' + tag + ')';
+    const key = query + ((tag.length > 0) ? ' (' + tag + ')' : '');
 
-    await table.loadIconTable("batch");
+    await table.loadTable();
     table.setKey(key);
 
-    if (!table.hasEntry() || (!table.hasIcon() && table.getEntry().uncertainty > 0) || (table.hasIcon() && table.getEntry().uncertainty > 1)) { // New searches
+    if (table.shouldSearch()) { // New searches
         let searchResults = fuseProductsSearch.search(query);
 
         table.createEntry();
@@ -69,6 +60,7 @@ export async function findIcons(queries: string[], excludeIcons: string[] = [], 
 
             // Icon is in exclusion list
             const existingIndex = excludeIcons.indexOf(searchResults[0].item.name);
+            const existingSkipIndex = table.getBlacklist().indexOf(searchResults[0].item.name);
             if (existingIndex != -1) {
                 if (DEBUG) console.log("X " + query + " (" + startFrom + ") = " + searchResults[0].item.name + " - " + excludeIcons);
 
@@ -86,6 +78,12 @@ export async function findIcons(queries: string[], excludeIcons: string[] = [], 
                 // Move to next result
                 searchResults.shift();
             }
+            else if (existingSkipIndex != -1 && !table.getSkips()[existingSkipIndex].winningQuery) { // Icon is blacklisted or duplicate
+                if (DEBUG) console.log("B " + query + " (" + startFrom + ") = " + searchResults[0].item.name);
+
+                // Move to next result
+                searchResults.shift();
+            }
             // Icon is too poor-scoring
             else if (searchResults[0].score && searchResults[0].score > BAD_SCORE_CUTOFF) {
                 if (DEBUG) console.log("X " + query + " (" + startFrom + ") = " + searchResults[0].item.name + " > " + BAD_SCORE_CUTOFF);
@@ -93,6 +91,7 @@ export async function findIcons(queries: string[], excludeIcons: string[] = [], 
                 // Log remaining choices in table
                 const remainingOptions = searchResults.map((searchResult): IconSkip => {
                     return {
+                        winningQuery: 'Unused',
                         score: searchResult.score,
                         icon: searchResult.item,
                     }
@@ -105,14 +104,26 @@ export async function findIcons(queries: string[], excludeIcons: string[] = [], 
                 // Void results; nothing good scoring left
                 searchResults = [];
             }
-            else if (searchResults[0].score) { // Save result that isn't problematic
+            else if (searchResults[0].score) { // Save good result
                 if (DEBUG) console.log(query + " (" + startFrom + ") = " + searchResults[0].item.name + " + " + excludeIcons);
 
                 table.setIcon(searchResults[0].item);
                 table.setScore(searchResults[0].score);
+                table.setFlag('none');
 
                 // Score > 0 if skips were made, less than 0 if ideal was picked
                 table.setUncertainty(searchResults[0].score - GOOD_SCORE_CUTOFF);
+
+                // Log remaining choices in table
+                searchResults.shift();
+                const remainingOptions = searchResults.map((searchResult): IconSkip => {
+                    return {
+                        winningQuery: 'Unused',
+                        score: searchResult.score,
+                        icon: searchResult.item,
+                    }
+                });
+                table.logSkips(...remainingOptions);
 
                 // Empty results
                 searchResults = [];
@@ -126,18 +137,18 @@ export async function findIcons(queries: string[], excludeIcons: string[] = [], 
     startFrom++;
     if (result) {
         if (startFrom == queries.length) {
-            table.saveIconTable("batch");
+            table.saveTable();
             return [result];
         }
         return [result, ...(await findIcons(queries, [...excludeIcons, result.name], tag, startFrom, table))];
     }
 
-    // If there weren't even options, flag log entry as important
-    if (table.getSkips().length == 0 && table.getUncertainty() > -1)
+    // If there weren't even options, flag log entry as most important
+    if (table.getSkips().length == 0 && table.getUncertainty() > -1 && !table.hasFlag())
         table.setUncertainty(2);
 
     if (startFrom == queries.length) {
-        table.saveIconTable("batch");
+        table.saveTable();
         return [];
     }
     return [...(await findIcons(queries, [...excludeIcons], tag, startFrom, table))];

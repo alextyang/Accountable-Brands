@@ -1,41 +1,102 @@
 "use client";
 
 import { useTransition } from 'react';
-import { confirmChoice, rejectChoice } from '../../../lib/utils/iconPicker/actions';
-import { useRouter } from 'next/navigation';
+import { setFlag, refreshTable } from '../../../lib/utils/iconPicker/actions';
+import { usePathname, useRouter } from 'next/navigation';
+import { IconEntryDescription, IconFlag } from '@/app/lib/utils/iconPicker/iconDefinitions';
 
-// COMPONENT: Option to lower score of icon error/conflict
-export function RejectButton({ iconKey, message, tableName }: { iconKey: string, message: string | undefined, tableName: string }) {
+// COMPONENT: Option to refresh icon table
+export function RefreshButton({ tableName }: { tableName: string }) {
 
     const router = useRouter();
     const [isTransitionStarted, startTransition] = useTransition();
 
-    if (!message || message.length < 2) return '';
-
-    const action = rejectChoice.bind(null, tableName, iconKey);
+    const action = refreshTable.bind(null, tableName);
 
     return (
-        <p className="text-sm opacity-75 hover:opacity-100 hover:underline cursor-pointer" onClick={async () => {
+        <p className="text-base font-medium opacity-75 hover:opacity-100 hover:underline cursor-pointer" onClick={async () => {
             await action();
             startTransition(router.refresh);
-        }}>{message}</p>
+        }}>Refresh</p>
     );
 }
 
-// COMPONENT: Option to raise score of icon error/conflict
-export function ConfirmButton({ iconKey, message, tableName }: { iconKey: string, message: string | undefined, tableName: string }) {
+// COMPONENT: Switch to icon table
+export function SwitchPageButton({ newTableName, readableName }: { newTableName: string, readableName: string }) {
+
+    const router = useRouter();
+    const path = usePathname();
+
+    const newPathName = '/admin/' + newTableName;
+
+
+    return (
+        <p className={"text-base font-medium opacity-75 hover:opacity-100 hover:underline cursor-pointer " + (newPathName == path ? ' underline underline-offset-1' : '')} onClick={() => { router.push(newPathName) }}>{readableName}</p>
+    );
+}
+
+// COMPONENT: Option to lower score of icon error/conflict
+export function FlagsButton({ iconKey, flag, desc, color, tableName }: { iconKey: string, flag: IconFlag, desc: IconEntryDescription, color: string, tableName: string }) {
 
     const router = useRouter();
     const [isTransitionStarted, startTransition] = useTransition();
 
-    if (!message || message.length < 2) return '';
 
-    const action = confirmChoice.bind(null, tableName, iconKey);
+
+    let buttonStack: {
+        borderColor: string;
+        iconColor: string;
+        hoverIconColor: string;
+        bgColor: string;
+        flag: IconFlag;
+        icon: string;
+        viewbox: string;
+        color: string;
+        title: string;
+    }[] = [];
+
+    const buttonDefaults = { borderColor: 'black', iconColor: 'black', hoverIconColor: 'tan', bgColor: 'tan' };
+
+    if (desc.flagRemove)
+        buttonStack.push({ flag: 'removed', icon: "M104.695-275.696v-82.869h91.001v82.869h-91.001Zm0-162.869v-82.87h91.001v82.87h-91.001Zm0-162.87v-82.869h91.001v82.869h-91.001Zm171.001 496.74v-91.001h82.869v91.001h-82.869Zm0-659.609v-91.001h82.869v91.001h-82.869Zm162.869 0v-91.001h82.87v91.001h-82.87Zm66.218 659.609-62.935-62.935 143.674-143.674-143.674-143.913 62.935-62.935 143.913 143.674L792.37-518.152l62.935 62.935-143.674 143.913L855.305-167.63l-62.935 62.935-143.674-143.674-143.913 143.674Zm96.652-659.609v-91.001h82.869v91.001h-82.869Zm162.869 162.869v-82.869h91.001v82.869h-91.001ZM104.695-764.304v-91.001h91.001v91.001h-91.001Zm750.61 0h-91.001v-91.001h91.001v91.001Zm-750.61 659.609v-91.001h91.001v91.001h-91.001Z", viewbox: '-40 -1000 1000 1000', color: 'red', title: desc.flagRemove, ...buttonDefaults });
+    if (desc.flagSkip)
+        buttonStack.push({ flag: 'skipped', icon: "M664.065-224.934v-510.132h91.001v510.132h-91.001Zm-459.131 0v-510.132L587.652-480 204.934-224.934ZM295.935-480Zm0 84.5L423.804-480l-127.869-84.5v169Z", viewbox: '-00 -935 925 935', color: 'yellow', title: desc.flagSkip, ...buttonDefaults });
+    if (desc.flagReplaced)
+        buttonStack.push({ flag: 'replaced', icon: "M783.522-110.913 529.848-364.587q-29.761 23.044-68.642 36.565-38.88 13.522-83.119 13.522-111.152 0-188.326-77.174Q112.587-468.848 112.587-580q0-111.152 77.174-188.326Q266.935-845.5 378.087-845.5q111.152 0 188.326 77.174Q643.587-691.152 643.587-580q0 44.478-13.522 83.12-13.521 38.641-36.565 68.163l253.913 254.152-63.891 63.652ZM378.087-405.5q72.848 0 123.674-50.826Q552.587-507.152 552.587-580q0-72.848-50.826-123.674Q450.935-754.5 378.087-754.5q-72.848 0-123.674 50.826Q203.587-652.848 203.587-580q0 72.848 50.826 123.674Q305.239-405.5 378.087-405.5Z", viewbox: '-20 -960 960 960', color: 'green', title: desc.flagReplaced, ...buttonDefaults });
+    if (desc.flagApprove)
+        buttonStack.push({ flag: 'approved', icon: "M200-120v-680h360l16 80h224v400H520l-16-80H280v280h-80Zm300-440Zm86 160h134v-240H510l-16-80H280v240h290l16 80Z", viewbox: '0 -960 960 960', color: 'green', title: desc.flagApprove, ...buttonDefaults });
+
+    buttonStack = buttonStack.map((button) => {
+        if (flag == button.flag) {
+            button.bgColor = button.color;
+            button.borderColor = button.color;
+            button.color = 'tan';
+            button.iconColor = 'tan';
+            button.hoverIconColor = 'black';
+            if (button.flag != 'replaced')
+                button.flag = 'none';
+        }
+        return button;
+    });
+
 
     return (
-        <p className="text-sm opacity-75 hover:opacity-100 hover:underline cursor-pointer" onClick={async () => {
-            await action();
-            startTransition(router.refresh);
-        }}>{message}</p>
+        <div className="cursor-pointer flex flex-row" >
+            <p className='hidden bg-red bg-yellow bg-green bg-black border-red border-yellow border-green border-black text-red text-yellow text-green text-black hover:bg-red hover:bg-yellow hover:bg-green hover:bg-tan hover:border-red hover:border-yellow hover:border-green hover:border-black hover:text-black hover:text-tan hover:text-red hover:text-yellow hover:text-green fill-[currentColor] '></p>
+            {
+                buttonStack.map((button) => {
+                    return (
+                        <div className={"w-8 h-8 flex items-center justify-center border-y-4 first-of-type:border-l-4 first-of-type:pr-1 last:border-r-4 last:pl-1 bg-" + button.bgColor + " hover:bg-" + button.color + " border-" + button.borderColor + " hover:border-" + button.color + " text-" + button.iconColor + " hover:text-" + button.hoverIconColor} key={button.flag + iconKey} title={button.title} onClick={async () => {
+                            if (button.flag == 'replaced')
+                                return;
+                            const action = setFlag.bind(null, tableName, iconKey, button.flag as IconFlag);
+                            await action();
+                            startTransition(router.refresh);
+                        }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox={button.viewbox} width="24" className='fill-[currentColor] '><path d={button.icon} /></svg>
+                        </div>
+                    )
+                })
+            }</div>
     );
 }
