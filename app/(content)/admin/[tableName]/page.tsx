@@ -1,9 +1,9 @@
 "use server";
 
-import { BAD_SCORE_CUTOFF, GOOD_SCORE_CUTOFF } from "@/app/lib/utils/iconPicker/iconSearch";
+import { BAD_SCORE_CUTOFF, GOOD_SCORE_CUTOFF } from "@/app/media/utils/iconPicker/iconSearch";
 import { FlagsButton, RefreshButton, SwitchPageButton } from "./buttons";
-import { IconTableEditor } from "@/app/lib/utils/iconPicker/iconTable";
-import { Icon } from "@/app/lib/utils/iconPicker/iconDefinitions";
+import { IconTableEditor } from "@/app/media/utils/iconPicker/iconTable";
+import { Icon } from "@/app/media/utils/iconPicker/iconDefinitions";
 
 // Utility page for viewing and resolving icon conflict/error logs
 export default async function Page({ params }: { params: { tableName: string } }) {

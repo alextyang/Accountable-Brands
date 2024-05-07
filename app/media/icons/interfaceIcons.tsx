@@ -1,4 +1,4 @@
-import { THEME } from "../definitions";
+import { THEME } from "@/app/data/definitions";
 
 // COMPONENT: Interface Icon
 export function Icon({

@@ -1,6 +1,13 @@
 // MediaWiki API Interface
+"use server";
 
-import { B_URL, BrandPage, DEBUG, MW_URL, ReportPage, SIMULATE_LAG, REVALIDATE_INTERVAL, REPORT_TYPES } from './definitions'
+import { B_URL, ParsedBrandPage, DEBUG, MW_URL, ParsedReportPage, SIMULATE_LAG, REVALIDATE_INTERVAL, REPORT_TYPES, NewBrandPage, NewReportPage } from './definitions'
+
+
+
+// 
+// Parse Pages
+// 
 
 
 // HTML Rendering
@@ -175,25 +182,24 @@ function fixReferenceIds(htmlString: string, tag: string): string {
 // MW API Calls
 
 // MW API: Scrape list of brands
-export async function fetchBrandPages(pageNames: string[]): Promise<BrandPage[]> {
+export async function fetchBrandPages(pageNames: string[]): Promise<ParsedBrandPage[]> {
     const fetchPromises = pageNames.map(brandName => fetchBrandPage(brandName));
     const searchResults = await Promise.all(fetchPromises);
     return searchResults;
 }
 
 // MW API: Scrape brand page
-export async function fetchBrandPage(pageName: string, revalidate?: boolean): Promise<BrandPage> {
+export async function fetchBrandPage(pageName: string, revalidate?: boolean): Promise<ParsedBrandPage> {
     var status = 'success';
     const pageResponse = await fetchPageHTMLString(pageName, revalidate);
     if (pageResponse == 'failed')
         status = pageResponse;
 
     const datatableHTMLString = locateParam(pageResponse, BRAND_HTML_MAP.DATATABLE); // Separate data
-    // if (DEBUG) { console.log('[MediaWiki] Recieved string: ', {pageResponse}); }
     const logoUrl = locateParam(datatableHTMLString, BRAND_HTML_MAP.LOGO_URL);
     const coverUrl = locateParam(datatableHTMLString, BRAND_HTML_MAP.COVER_URL);
 
-    const pageData: BrandPage = {
+    const pageData: ParsedBrandPage = {
         status: 'success',
         id: Number(locateParam(pageResponse, WIKI_HTML_MAP.ID)),
         name: locateParam(pageResponse, WIKI_HTML_MAP.TITLE),
@@ -218,23 +224,23 @@ export async function fetchBrandPage(pageName: string, revalidate?: boolean): Pr
             }).splice(1),
     };
 
-    if (DEBUG) console.log('[MediaWiki] Interpreted page data: ', pageData);
+    if (DEBUG) console.log('[MW-Parse-Brand] Interpreted page data: ', pageData);
     return pageData;
 }
 
 // MW API: Scrape report pages
-export async function fetchReportPages(pageNames: string[], revalidate?: boolean): Promise<ReportPage[]> {
+export async function fetchReportPages(pageNames: string[], revalidate?: boolean): Promise<ParsedReportPage[]> {
     const fetchPromises = pageNames.map(pageName => fetchPageHTMLString(pageName, revalidate));
     const pageResponses = await Promise.all(fetchPromises);
     const fetchPreviewPromises = pageNames.map(pageName => fetchPagePlainText(pageName, revalidate));
     const pagePreviewResponses = await Promise.all(fetchPreviewPromises);
 
-    if (DEBUG) { console.log('[MediaWiki] Fetched reports: ', pageResponses); }
-    if (DEBUG) { console.log('[MediaWiki] Fetched previews: ', pagePreviewResponses); }
+    if (DEBUG) { console.log('[MW-Parse-Report] Fetched reports: ', pageResponses); }
+    if (DEBUG) { console.log('[MW-Parse-Report] Fetched previews: ', pagePreviewResponses); }
 
 
-    const reportPageDatas: ReportPage[] = pageResponses.map(
-        (pageResponse, index): ReportPage => {
+    const reportPageDatas: ParsedReportPage[] = pageResponses.map(
+        (pageResponse, index): ParsedReportPage => {
             var status = 'success';
             const dataResponse = locateParam(pageResponse, REPORT_HTML_MAP.DATATABLE);
             const type = locateParam(dataResponse, REPORT_HTML_MAP.TYPE);
@@ -253,7 +259,7 @@ export async function fetchReportPages(pageNames: string[], revalidate?: boolean
             };
         }
     );
-    if (DEBUG) { console.log('[MediaWiki] Interpreted reports as: '); reportPageDatas.map(item => console.log(item)); }
+    if (DEBUG) { console.log('[MW-Parse-Report] Interpreted reports as: '); reportPageDatas.map(item => console.log(item)); }
 
     return reportPageDatas;
 }
@@ -333,19 +339,18 @@ async function fetchPageHTMLString(pageName: string, forceRevalidate?: boolean):
             format: "json",
             origin: '*'
         });
-        if (DEBUG) console.log('[MediaWiki] Fetching page data for \'' + pageName + '\' - ' + `${MW_URL}/w/api.php?${params}`);
+        if (DEBUG) console.log('[MW-Parse] Fetching page data for \'' + pageName + '\' - ' + `${MW_URL}/w/api.php?${params}`);
         const data = await delayFetch(`${MW_URL}/w/api.php?${params}`, { next: { revalidate: forceRevalidate ? 0 : REVALIDATE_INTERVAL } })
             .then(function (response) {
                 return response.json() as Promise<MWPageResponse>
             })
-        // console.log('[MediaWiki] Page fetch completed.');
-        // if (DEBUG) console.log('[MediaWiki] Found page HTML: ', data.parse.text['*']);
+        // if (DEBUG) console.log('[MW-Parse] Found page HTML: ', data.parse.text['*']);
 
         return WIKI_HTML_MAP.ID.startToken + data.parse.pageid + WIKI_HTML_MAP.ID.endToken + WIKI_HTML_MAP.TITLE.startToken + data.parse.title + WIKI_HTML_MAP.TITLE.endToken + data.parse.text['*']; // embed received metadata in page HTML
 
     } catch (error) { //TODO: handle errors
-        console.error('[MediaWiki] Fetch Error: ', error);
-        console.error('[MediaWiki] Failed to load page: ' + pageName);
+        console.error('[MW-Parse] Fetch Error: ', error);
+        console.error('[MW-Parse] Failed to load page: ' + pageName);
         return 'failed';
     }
 }
@@ -373,21 +378,28 @@ export async function fetchPagePlainText(pageName: string, forceRevalidate?: boo
             explaintext: 'true'
         });
 
-        if (DEBUG) console.log('[MediaWiki] Fetching previews for \'' + pageName + '\' - ' + `${MW_URL}/w/api.php?${params}`);
+        if (DEBUG) console.log('[MW-Parse] Fetching previews for \'' + pageName + '\' - ' + `${MW_URL}/w/api.php?${params}`);
         const data = await fetch(`${MW_URL}/w/api.php?${params}`, { next: { revalidate: forceRevalidate ? 0 : REVALIDATE_INTERVAL } })
             .then(function (response) {
                 return response.json() as Promise<MWTextExtResponse>
             })
-        if (DEBUG) console.log('[MediaWiki] Preview fetch completed:', Object.values(data.query.pages)[0].extract);
+        if (DEBUG) console.log('[MW-Parse] Preview fetch completed:', Object.values(data.query.pages)[0].extract);
 
         return Object.values(data.query.pages)[0].extract; // Plain text preview
 
     } catch (error) { //TODO: handle errors
-        console.error('[MediaWiki] Fetch Error: ', error);
-        console.error('[MediaWiki] Failed to load page: ' + pageName);
+        console.error('[MW-Parse] Fetch Error: ', error);
+        console.error('[MW-Parse] Failed to load page: ' + pageName);
         return '';
     }
 }
+
+
+
+// 
+// Search Pages
+// 
+
 
 // Search: Expected JSON response object
 type MWSearchResults = {
@@ -411,23 +423,213 @@ export async function searchBrands(options: { query: string, resultCount: number
     });
 
     try {
-        if (DEBUG) { console.log('[MediaWiki] Searching for \'' + options.query + '\' - ' + `${MW_URL}/w/api.php?${params}`); }
+        if (DEBUG) { console.log('[MW-Search] Searching for \'' + options.query + '\' - ' + `${MW_URL}/w/api.php?${params}`); }
 
         const data = await fetch(`${MW_URL}/w/api.php?${params}`, { next: { revalidate: options.forceRevalidate ? 0 : REVALIDATE_INTERVAL } })
             .then(function (response) {
                 return response.json() as Promise<MWSearchResults>
             })
 
-        // if (DEBUG) { console.log('[MediaWiki] Raw search response: '); console.log(data); }
-        if (DEBUG) { console.log('[MediaWiki] Iterpreted as: '); console.log(data.query.search.map(item => item.title)); }
+        // if (DEBUG) { console.log('[MW-Search] Raw search response: '); console.log(data); }
+        if (DEBUG) { console.log('[MW-Search] Interpreted as: '); console.log(data.query.search.map(item => item.title)); }
 
         const searchRes = data.query.search.map(item => item.title);
 
         return searchRes;
 
     } catch (error) { //TODO: handle errors
-        console.error('[MediaWiki] Search Error: ', error);
-        throw new Error('[MediaWiki] Failed to perform search: ' + `${MW_URL}/w/api.php?${params}`);
+        console.error('[MW-Search] Search Error: ', error);
+        throw new Error('[MW-Search] Failed to perform search: ' + `${MW_URL}/w/api.php?${params}`);
+    }
+
+}
+
+
+
+// 
+// Credentials
+// 
+
+
+
+export async function login() {
+    getToken();
+}
+
+
+type MWPostResponse = {
+    login: {
+        result: string
+    }
+};
+async function postRequest(token: string): Promise<string> {
+    const params = new URLSearchParams({ //API Get Params
+        action: "login",
+        format: "json",
+    });
+
+    const formData = new URLSearchParams({
+        action: "login",
+        format: "json",
+        lgtoken: token,
+        lgname: process.env.BOTUSERNAME ? process.env.BOTUSERNAME : '',
+        lgpassword: process.env.BOTPASSWORD ? process.env.BOTPASSWORD : '',
+    });
+
+    try {
+
+        const data = await fetch(`${MW_URL}/w/api.php?${params}`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: formData
+        })
+            .then(function (response) {
+                return response.json() as Promise<MWPostResponse>
+            }).then(async (json) => {
+                console.log(await getCsrfToken());
+                return json
+            })
+        console.log('[MW-Login] Login: ', data)
+        return data.login.result;
+
+    } catch (error) { //TODO: handle errors
+        console.error('[MW-Login] Login error: ', error);
+        throw new Error('[MW-Login] Failed to login: ' + `${MW_URL}/w/api.php?${params}`);
+    }
+}
+
+
+
+type MWTokenResponse = {
+    query: {
+        tokens: {
+            logintoken: string
+        }
+    }
+};
+async function getToken() {
+    const params = new URLSearchParams({ //API Get Params
+        action: "query",
+        meta: "tokens",
+        type: "login",
+        format: "json"
+    });
+
+    try {
+        console.log('[MW-Login] Fetching token: ' + `${MW_URL}/w/api.php?${params}`);
+
+        await fetch(`${MW_URL}/w/api.php?${params}`, { method: 'GET', credentials: 'include' })
+            .then((response) => {
+                return response.json() as Promise<MWTokenResponse>;
+            }).then((data) => {
+                postRequest(data.query.tokens.logintoken);
+            })
+
+    } catch (error) { //TODO: handle errors
+        console.error('[MW-Login] Login error: ', error);
+        throw new Error('[MW-Login] Failed get token: ' + `${MW_URL}/w/api.php?${params}`);
+    }
+}
+
+type MWCsrfTokenResponse = {
+    query: {
+        tokens: {
+            csrftoken: string
+        }
+    }
+};
+async function getCsrfToken() {
+    const params = new URLSearchParams({ //API Get Params
+        action: "query",
+        meta: "tokens",
+        format: "json"
+    });
+
+    try {
+        console.log('[MW-Login] Fetching csrf token: ' + `${MW_URL}/w/api.php?${params}`);
+
+        return await fetch(`${MW_URL}/w/api.php?${params}`, { method: 'GET', credentials: 'include' })
+            .then((response) => {
+                return response.json() as Promise<MWCsrfTokenResponse>;
+            }).then((data) => {
+                return data.query.tokens.csrftoken;
+            })
+
+
+    } catch (error) { //TODO: handle errors
+        console.error('[MW-Login] Login error: ', error);
+        throw new Error('[MW-Login] Failed get token: ' + `${MW_URL}/w/api.php?${params}`);
+    }
+}
+
+
+
+
+// 
+// Create Pages
+// 
+
+export async function createBrandPage(content: NewBrandPage) {
+    const body = content.description ? content.description : `\{\{Wikipedia excerpt\|${content.wikipediaName ? content.wikipediaName : content.name}\|0\|paragraphs=1\}\}`;
+
+    if (DEBUG) { console.log('[MW-Create] Creating page: ', body); }
+
+
+    const text = `\{\{BrandHeader
+        \| logo = ${content.logo}
+        \| cover = ${content.coverImage?.url?.substring(content.coverImage?.url?.lastIndexOf('/') + 1)}
+        \| coverCaption = ${content.coverImage?.alt}
+        \| industry = ${content.industry}
+        \| parent = ${content.owner}
+        \| brands = ${content.brands}
+        \| products = ${content.products}
+        \}\}
+        \n${body}
+        \n
+        \n\{\{BrandFooter\}\}`;
+
+    return createPage(content.name, text);
+}
+
+export async function createReportPage(content: NewReportPage) {
+
+    const text = `\{\{ReportHeader
+        \| type = ${content.type}
+        \| timeframe = ${content.timeframe}
+        \}\}
+        \n
+        \n${content.content}`;
+
+    return createPage(content.brandName + '/' + content.title, text);
+}
+
+
+async function createPage(title: string, text: string) {
+    const params = new URLSearchParams({ //API Get Params
+        action: "edit",
+        title: title,
+        text: text,
+        createonly: 'false',
+        format: "json",
+        origin: "*"
+    });
+
+    try {
+        if (DEBUG) { console.log('[MW-Create] Creating page \'' + title + '\' - ' + `${MW_URL}/w/api.php?${params}`); }
+
+        const data = await fetch(`${MW_URL}/w/api.php?${params}`, {})
+            .then(function (response) {
+                return response.json() as Promise<any>
+            })
+
+        if (DEBUG) { console.log('[MW-Create] Response: ', data) }
+        console.log(data);
+        return data;
+
+    } catch (error) { //TODO: handle errors
+        console.error('[MW-Create] Create page error: ', error);
+        throw new Error('[MW-Create] Failed to perform creation: ' + `${MW_URL}/w/api.php?${params}`);
     }
 
 }

@@ -1,4 +1,4 @@
-import { Icon } from "@/app/lib/icons/interfaceIcons";
+import { Icon } from "@/app/media/icons/interfaceIcons";
 import React from "react";
 export function Faq({ }) {
   return (

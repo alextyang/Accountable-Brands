@@ -36,10 +36,12 @@ export const THEME = {
 }
 
 
-export type BrandPage = { // Structure of parsed Company/Organization page
+export type ParsedBrandPage = { // Structure of parsed Company/Organization page
     status: string, //TODO make enum
     id: number,
+    wikipediaId?: number,
     name: string,
+    wikipediaName?: string,
     url_name: string,
     logo?: {
         url: string,
@@ -56,10 +58,31 @@ export type BrandPage = { // Structure of parsed Company/Organization page
     references?: string,
     importedReferences?: string[],
     reportNames: string[]
-    reportPages?: ReportPage[]
+    reportPages?: ParsedReportPage[]
 }
 
-export type ReportPage = { // Structure of parsed report page
+export type NewBrandPage = { // Structure of pending Company/Organization page
+    status: string, //TODO make enum
+    name: string,
+    wikipediaName?: string,
+    logo: {
+        url?: string,
+        previewUrl?: string,
+    },
+    coverImage: {
+        url?: string,
+        previewUrl?: string,
+        alt?: string
+    },
+    owner?: string,
+    brands?: string,
+    products?: string,
+    industry?: string,
+    references?: string,
+    description?: string,
+}
+
+export type ParsedReportPage = { // Structure of parsed report page
     status: string, //TODO make enum
     id: number,
     title: string,
@@ -67,6 +90,15 @@ export type ReportPage = { // Structure of parsed report page
     type: string, //TODO make enum,
     preview: string,
     content: string | JSX.Element | JSX.Element[]
+}
+
+export type NewReportPage = { // Structure of pending report page
+    status: string, //TODO make enum
+    title: string,
+    brandName: string,
+    timeframe?: string,
+    type: string, //TODO make enum,
+    content?: string | JSX.Element | JSX.Element[]
 }
 
 // Report type classifications

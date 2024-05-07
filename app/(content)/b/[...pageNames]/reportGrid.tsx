@@ -1,8 +1,8 @@
 "use client";
 
-import { Icon, IconName } from "@/app/lib/icons/interfaceIcons";
+import { Icon, IconName } from "@/app/media/icons/interfaceIcons";
 import ActionMenu from "./actionMenu";
-import { ReportPage, REPORT_TYPES } from "@/app/lib/definitions";
+import { ParsedReportPage, REPORT_TYPES } from "@/app/data/definitions";
 import {
   ForwardedRef,
   MutableRefObject,
@@ -22,7 +22,7 @@ import {
   useSearchParams,
 } from "next/navigation";
 
-export function ReportGrid({ reports }: { reports: ReportPage[] }) {
+export function ReportGrid({ reports }: { reports: ParsedReportPage[] }) {
   const params = useParams();
   const [brandName, reportName] = [
     decodeURIComponent(params.pageNames[0]),
@@ -217,7 +217,7 @@ export function ReportGrid({ reports }: { reports: ReportPage[] }) {
 const ReportItemForwarded = forwardRef<
   HTMLDivElement,
   {
-    report: ReportPage | undefined;
+    report: ParsedReportPage | undefined;
     openReport: number;
     index: number;
     setOpenReport: Function;
@@ -231,7 +231,7 @@ function ReportItem(
     openReport,
     setOpenReport,
   }: {
-    report: ReportPage | undefined;
+    report: ParsedReportPage | undefined;
     openReport: number;
     index: number;
     setOpenReport: Function;
@@ -335,7 +335,7 @@ function AnimatedReportModal({
 }: {
   duration: number;
   state: TransitionStatus;
-  report: ReportPage | undefined;
+  report: ParsedReportPage | undefined;
   setOpenReport: Function;
   modalOriginBox: DOMRect | undefined;
   modalOffsetBox: DOMRect | undefined;
@@ -587,7 +587,7 @@ function StaticReportModal({
   report,
   setOpenReport,
 }: {
-  report: ReportPage | undefined;
+  report: ParsedReportPage | undefined;
   setOpenReport: Function;
 }) {
   if (!report) return "";

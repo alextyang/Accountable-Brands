@@ -1,4 +1,4 @@
-import { BrandPage } from "@/app/lib/definitions"
+import { ParsedBrandPage } from "@/app/data/definitions"
 
 export default function LoadingBrandPage() {
     // You can add any UI inside Loading, including a Skeleton.

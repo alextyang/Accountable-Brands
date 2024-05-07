@@ -1,11 +1,11 @@
-import { ADD_BRAND_URL, BrandPage, REPORT_TYPES, ReportPage } from '../../../lib/definitions'
+import { ADD_BRAND_URL, ParsedBrandPage, REPORT_TYPES, ParsedReportPage } from '../../../data/definitions'
 import { Suspense } from 'react'
 import Image from 'next/image'
-import { Icon, IconName } from '@/app/lib/icons/interfaceIcons';
-import { fetchBrandPage, fetchReportPages, searchBrands } from '@/app/lib/mediawiki';
+import { Icon, IconName } from '@/app/media/icons/interfaceIcons';
+import { fetchBrandPage, fetchReportPages, searchBrands } from '@/app/data/mediawiki';
 import Link from 'next/link';
 import { LoadingBrandItem, LoadingReportItem, LoadingReports, LoadingSearchRow } from './loading';
-import { IndustryIcon } from '@/app/lib/utils/iconPicker/iconComponents';
+import { IndustryIcon } from '@/app/media/utils/iconPicker/iconComponents';
 
 
 export default async function SearchResults({ searchQuery, pageNumber = 0, resultCount = 10, className = "" }: { searchQuery: string, pageNumber?: number, resultCount?: number, className?: string, debug?: boolean }) {
@@ -70,7 +70,7 @@ async function SearchResultRow({ brandName, rowIndex }: { brandName: string, row
 
 
 const SEARCH_ITEM_className = 'col-span-1 justify-self-stretch h-52 relative  text-xl font-medium first:-ml-1.5 min-w-64 '; // max-w-128
-async function BrandSearchItem({ brandData, index }: { brandData: BrandPage, index: number }) {
+async function BrandSearchItem({ brandData, index }: { brandData: ParsedBrandPage, index: number }) {
   return (
     <div className={SEARCH_ITEM_className + ' border-x-black border-x-6 border-b-black border-b-6 text-xl font-medium flex flex-col'}>
 

@@ -16,22 +16,22 @@ let timeoutID: string | number | NodeJS.Timeout | undefined;
 if (timeoutID == undefined)
     timeoutID = setTimeout(saveTablesToFile, 5 * 1000);
 
-export async function tryTableSave(tableName: string) {
-    await saveTabletoFile(tableName);
+export async function requestTableSave(tableName: string) {
+    await saveTableToFile(tableName);
 }
 
 async function saveTablesToFile() {
     if (tableChanges['solo'].length > 0 || tableChanges['batch'].length > 0)
         if (DEBUG) console.log("[Queue] Trying periodic save of " + tableChanges['solo'].length + ", " + tableChanges['batch'].length + " (ID " + timeoutID + ")");
 
-    await saveTabletoFile("solo");
-    await saveTabletoFile("batch");
+    await saveTableToFile("solo");
+    await saveTableToFile("batch");
 
     clearTimeout(timeoutID);
     timeoutID = setTimeout(saveTablesToFile, 5 * 1000);
 }
 
-async function saveTabletoFile(tableName: string) {
+async function saveTableToFile(tableName: string) {
     if (isWriting || tableChanges[tableName].length == 0) {
         if (tableChanges[tableName].length != 0)
             console.log("[Queue] Skipping save request of " + tableChanges[tableName].length + " to " + tableName);

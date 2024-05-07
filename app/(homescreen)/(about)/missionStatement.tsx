@@ -1,4 +1,4 @@
-import { LetterMark } from "@/app/lib/branding/branding";
+import { LetterMark } from "@/app/media/branding/branding";
 import React from "react";
 export function MissionStatement({ }) {
   return (

@@ -1,4 +1,4 @@
-import { THEME } from "../definitions";
+import { THEME } from "@/app/data/definitions";
 
 // GRAPHIC: Creative Commons License
 export function CCIcons({

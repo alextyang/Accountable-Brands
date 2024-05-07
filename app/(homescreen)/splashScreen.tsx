@@ -1,7 +1,7 @@
-import { TitleSplash } from "@/app/lib/branding/branding";
+import { TitleSplash } from "@/app/media/branding/branding";
 import React from "react";
 import { HomeSearchBar } from "../(content)/search/[searchQuery]/searchBar";
-import { Icon } from "@/app/lib/icons/interfaceIcons";
+import { Icon } from "@/app/media/icons/interfaceIcons";
 import { SplashMessage } from "./splashMessage";
 
 export function SplashScreen({ }) {
@@ -12,10 +12,12 @@ export function SplashScreen({ }) {
       <TitleSplash />
       <HomeSearchBar />
       <SplashMessage />
+
       <div className="absolute left-0 right-0 flex flex-row items-center justify-center w-full h-32 gap-1 bottom-[6vh]">
         <p className="text-xl font-medium">How it works</p>
         <Icon className="w-12 h-12 !block" name="down-arrow" />
       </div>
+
     </div>
   );
 }

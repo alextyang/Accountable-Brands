@@ -11,10 +11,10 @@ import {
   MW_URL,
   PATREON_LINK,
   TWITTER_LINK,
-} from "../lib/definitions";
-import { Icon } from "../lib/icons/interfaceIcons";
-import { LetterMark } from "../lib/branding/branding";
-import { CCIcons } from "../lib/branding/externalBranding";
+} from "../data/definitions";
+import { Icon } from "../media/icons/interfaceIcons";
+import { LetterMark } from "../media/branding/branding";
+import { CCIcons } from "../media/branding/externalBranding";
 
 type FooterLinkList = { header: string; links: string[]; hrefs: string[] }[];
 const baseFooterLinks: FooterLinkList = [

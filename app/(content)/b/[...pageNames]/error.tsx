@@ -1,7 +1,7 @@
 "use client";
 
-import { MW_URL } from "@/app/lib/definitions";
-import { Icon } from "@/app/lib/icons/interfaceIcons";
+import { MW_URL } from "@/app/data/definitions";
+import { Icon } from "@/app/media/icons/interfaceIcons";
 import { useEffect } from "react";
 
 export default function BrandPageError({

@@ -1,7 +1,7 @@
 // Dynamic Icon Components, Specific for Industry/Product use case
 
+import { THEME } from "@/app/data/definitions";
 import { Icon, IconSkip, IconTable, DEFAULT_INDUSTRY_ICON, DEBUG } from "./iconDefinitions";
-import { THEME } from "../../definitions";
 import { findIcon, findIcons } from "./iconSearch";
 
 

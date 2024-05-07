@@ -1,5 +1,3 @@
-// Based on https://medium.com/@shkim04/react-how-to-detect-click-outside-a-component-984fe2e003e8
-// & https://dev.to/rashed_iqbal/how-to-handle-outside-clicks-in-react-with-typescript-4lmc 
 // Wrapper component that triggers event when user clicks outside its reference element.
 
 import { useRef, useEffect, RefObject, CSSProperties } from 'react';

@@ -1,6 +1,6 @@
 import React from "react";
-import { BetaIndicator } from "@/app/lib/branding/branding";
 import { randomInt } from "crypto";
+import { BetaIndicator } from "../media/branding/branding";
 
 const splashMessages = [
     "Crowd-sourced consumer empowerment.",

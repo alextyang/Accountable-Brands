@@ -1,8 +1,8 @@
 "use client";
 
-import { MW_URL } from "@/app/lib/definitions";
-import { Icon, IconName } from "@/app/lib/icons/interfaceIcons";
-import ClickOutside from "@/app/lib/utils/clickOutside";
+import { MW_URL } from "@/app/data/definitions";
+import { Icon, IconName } from "@/app/media/icons/interfaceIcons";
+import ClickOutside from "@/app/media/utils/ClickOutside";
 import Link from "next/link";
 import { useState } from "react";
 

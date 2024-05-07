@@ -1,12 +1,12 @@
 "use server";
 
 import { Icon, IconFlag } from "./iconDefinitions";
-import { IconTableEditor, tryTableSave } from "./iconTable";
+import { IconTableEditor, requestTableSave } from "./iconTable";
 
 // SERVER ACTION: Ignore a given icon error/conflict
 export async function refreshTable(tableName: string) {
 
-    await tryTableSave(tableName);
+    await requestTableSave(tableName);
 
     return tableName;
 }
@@ -55,7 +55,7 @@ export async function setFlag(tableName: string, key: string, flag: IconFlag, ne
 
     table.setFlag(flag);
     await table.saveTable();
-    await tryTableSave(tableName);
+    await requestTableSave(tableName);
 
     return key;
 }

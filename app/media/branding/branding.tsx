@@ -1,9 +1,9 @@
 'use client';
 
+import { THEME } from "@/app/data/definitions";
 // Site Branding
 
 import { useRouter } from "next/navigation";
-import { THEME } from "../definitions";
 
 // GRAPHIC: Reusable Add-on for Titlemark SVGs
 function BetaLogoMarker({ className = '' }) {

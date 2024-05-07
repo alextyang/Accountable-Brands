@@ -5,7 +5,7 @@ import './globals.css'
 // Import local fonts for
 // title
 const gabriella = localFont({
-  src: './lib/fonts/gabriella.woff2',
+  src: './media/fonts/gabriella.woff2',
   display: 'swap',
   variable: '--font-gabriella'
 })
@@ -13,22 +13,22 @@ const gabriella = localFont({
 const owners = localFont({
   src: [
     {
-      path: './lib/fonts/owners-400.woff2',
+      path: './media/fonts/owners-400.woff2',
       weight: '400',
       style: 'normal'
     },
     {
-      path: './lib/fonts/owners-italic-400.woff2',
+      path: './media/fonts/owners-italic-400.woff2',
       weight: '400',
       style: 'italic'
     },
     {
-      path: './lib/fonts/owners-500.woff2',
+      path: './media/fonts/owners-500.woff2',
       weight: '500',
       style: 'normal'
     },
     {
-      path: './lib/fonts/owners-italic-500.woff2',
+      path: './media/fonts/owners-italic-500.woff2',
       weight: '500',
       style: 'italic'
     }

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import { Icon } from "../../../lib/icons/interfaceIcons";
+import { Icon } from "../../../media/icons/interfaceIcons";
 import Link from "next/link";
 
 const DEBUG = true;

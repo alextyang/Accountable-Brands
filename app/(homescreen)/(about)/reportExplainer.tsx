@@ -1,7 +1,8 @@
-import { BrandSearchIcon } from "@/app/lib/icons/customIcons";
-import { REPORT_TYPES } from "@/app/lib/definitions";
-import { Icon, IconName } from "@/app/lib/icons/interfaceIcons";
+import { BrandSearchIcon } from "@/app/media/icons/customIcons";
+import { REPORT_TYPES } from "@/app/data/definitions";
+import { Icon, IconName } from "@/app/media/icons/interfaceIcons";
 import React from "react";
+
 export function ReportExplainer({ }) {
   return (
     <>

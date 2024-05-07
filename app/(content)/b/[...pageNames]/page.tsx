@@ -1,17 +1,17 @@
 import Image from 'next/image'
 import { Input } from 'postcss'
-import { fetchBrandPage, fetchReportPages } from '@/app/lib/mediawiki'
+import { fetchBrandPage, fetchReportPages } from '@/app/data/mediawiki'
 
 
 import parseHTML from 'html-react-parser';
 import { JSDOM } from 'jsdom';
 import DOMPurify from 'dompurify';
 import ActionMenu from './actionMenu';
-import { IndustryIcon, ProductIcons } from '@/app/lib/utils/iconPicker/iconComponents';
+import { IndustryIcon, ProductIcons } from '@/app/media/utils/iconPicker/iconComponents';
 import { ReportGrid } from './reportGrid';
 import Link from 'next/link';
-import { Icon } from '@/app/lib/icons/interfaceIcons';
-import { BrandPage as BrandPageType, MW_URL, ReportPage } from '@/app/lib/definitions';
+import { Icon } from '@/app/media/icons/interfaceIcons';
+import { ParsedBrandPage as BrandPageType, MW_URL, ParsedReportPage } from '@/app/data/definitions';
 import { ErrorBoundary } from 'next/dist/client/components/error-boundary';
 import BrandPageError, { ReportPageError } from './error';
 import { Suspense } from 'react';
@@ -70,7 +70,7 @@ async function ReportsPage({ brandData }: { brandData: BrandPageType }) {
         return (<NoReportsFound brandName={brandData.name} brandUrlName={brandData.url_name} />);
 
     const rawReports = await fetchReportPages(brandData.reportNames, false);
-    var reports: ReportPage[] = [];
+    var reports: ParsedReportPage[] = [];
     rawReports.map(report => {
         if (report.status == 'success')
             reports.push(report);
