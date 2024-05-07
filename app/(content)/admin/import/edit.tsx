@@ -5,7 +5,7 @@ import { Icon } from "@/app/media/icons/interfaceIcons";
 import { startTransition, useState } from "react";
 import Image from 'next/image'
 import { WP_URL, fetchPotentialBrandPage } from "@/app/data/wikipedia";
-import { editPageName, resetPageInfo, setPageInfo, submitPage, updatePageNames } from "./page";
+import { editPageName, resetPageInfo, setPageInfo, submitPage, updatePageNames } from "./actions";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
