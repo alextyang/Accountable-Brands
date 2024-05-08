@@ -1,7 +1,7 @@
 'use client' // Error components must be Client Components
 
 import { useEffect } from 'react'
-import { EditName } from './edit'
+import { EditName } from './buttons'
 
 export default function NewPageError({
     error,

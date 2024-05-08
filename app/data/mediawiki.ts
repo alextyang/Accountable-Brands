@@ -452,116 +452,116 @@ export async function searchBrands(options: { query: string, resultCount: number
 
 
 
-export async function login() {
-    getToken();
-}
+// export async function login() {
+//     getToken();
+// }
 
 
-type MWPostResponse = {
-    login: {
-        result: string
-    }
-};
-async function postRequest(token: string): Promise<string> {
-    const params = new URLSearchParams({ //API Get Params
-        action: "login",
-        format: "json",
-    });
+// type MWPostResponse = {
+//     login: {
+//         result: string
+//     }
+// };
+// async function postRequest(token: string): Promise<string> {
+//     const params = new URLSearchParams({ //API Get Params
+//         action: "login",
+//         format: "json",
+//     });
 
-    const formData = new URLSearchParams({
-        action: "login",
-        format: "json",
-        lgtoken: token,
-        lgname: process.env.BOTUSERNAME ? process.env.BOTUSERNAME : '',
-        lgpassword: process.env.BOTPASSWORD ? process.env.BOTPASSWORD : '',
-    });
+//     const formData = new URLSearchParams({
+//         action: "login",
+//         format: "json",
+//         lgtoken: token,
+//         lgname: process.env.BOTUSERNAME ? process.env.BOTUSERNAME : '',
+//         lgpassword: process.env.BOTPASSWORD ? process.env.BOTPASSWORD : '',
+//     });
 
-    try {
+//     try {
 
-        const data = await fetch(`${MW_URL}/w/api.php?${params}`, {
-            method: 'POST',
-            credentials: 'include',
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: formData
-        })
-            .then(function (response) {
-                return response.json() as Promise<MWPostResponse>
-            }).then(async (json) => {
-                console.log(await getCsrfToken());
-                return json
-            })
-        console.log('[MW-Login] Login: ', data)
-        return data.login.result;
+//         const data = await fetch(`${MW_URL}/w/api.php?${params}`, {
+//             method: 'POST',
+//             credentials: 'include',
+//             headers: { "Content-Type": "application/x-www-form-urlencoded" },
+//             body: formData
+//         })
+//             .then(function (response) {
+//                 return response.json() as Promise<MWPostResponse>
+//             }).then(async (json) => {
+//                 console.log(await getCsrfToken());
+//                 return json
+//             })
+//         console.log('[MW-Login] Login: ', data)
+//         return data.login.result;
 
-    } catch (error) { //TODO: handle errors
-        console.error('[MW-Login] Login error: ', error);
-        throw new Error('[MW-Login] Failed to login: ' + `${MW_URL}/w/api.php?${params}`);
-    }
-}
-
-
-
-type MWTokenResponse = {
-    query: {
-        tokens: {
-            logintoken: string
-        }
-    }
-};
-async function getToken() {
-    const params = new URLSearchParams({ //API Get Params
-        action: "query",
-        meta: "tokens",
-        type: "login",
-        format: "json"
-    });
-
-    try {
-        console.log('[MW-Login] Fetching token: ' + `${MW_URL}/w/api.php?${params}`);
-
-        await fetch(`${MW_URL}/w/api.php?${params}`, { method: 'GET', credentials: 'include' })
-            .then((response) => {
-                return response.json() as Promise<MWTokenResponse>;
-            }).then((data) => {
-                postRequest(data.query.tokens.logintoken);
-            })
-
-    } catch (error) { //TODO: handle errors
-        console.error('[MW-Login] Login error: ', error);
-        throw new Error('[MW-Login] Failed get token: ' + `${MW_URL}/w/api.php?${params}`);
-    }
-}
-
-type MWCsrfTokenResponse = {
-    query: {
-        tokens: {
-            csrftoken: string
-        }
-    }
-};
-async function getCsrfToken() {
-    const params = new URLSearchParams({ //API Get Params
-        action: "query",
-        meta: "tokens",
-        format: "json"
-    });
-
-    try {
-        console.log('[MW-Login] Fetching csrf token: ' + `${MW_URL}/w/api.php?${params}`);
-
-        return await fetch(`${MW_URL}/w/api.php?${params}`, { method: 'GET', credentials: 'include' })
-            .then((response) => {
-                return response.json() as Promise<MWCsrfTokenResponse>;
-            }).then((data) => {
-                return data.query.tokens.csrftoken;
-            })
+//     } catch (error) { //TODO: handle errors
+//         console.error('[MW-Login] Login error: ', error);
+//         throw new Error('[MW-Login] Failed to login: ' + `${MW_URL}/w/api.php?${params}`);
+//     }
+// }
 
 
-    } catch (error) { //TODO: handle errors
-        console.error('[MW-Login] Login error: ', error);
-        throw new Error('[MW-Login] Failed get token: ' + `${MW_URL}/w/api.php?${params}`);
-    }
-}
+
+// type MWTokenResponse = {
+//     query: {
+//         tokens: {
+//             logintoken: string
+//         }
+//     }
+// };
+// async function getToken() {
+//     const params = new URLSearchParams({ //API Get Params
+//         action: "query",
+//         meta: "tokens",
+//         type: "login",
+//         format: "json"
+//     });
+
+//     try {
+//         console.log('[MW-Login] Fetching token: ' + `${MW_URL}/w/api.php?${params}`);
+
+//         await fetch(`${MW_URL}/w/api.php?${params}`, { method: 'GET', credentials: 'include' })
+//             .then((response) => {
+//                 return response.json() as Promise<MWTokenResponse>;
+//             }).then((data) => {
+//                 postRequest(data.query.tokens.logintoken);
+//             })
+
+//     } catch (error) { //TODO: handle errors
+//         console.error('[MW-Login] Login error: ', error);
+//         throw new Error('[MW-Login] Failed get token: ' + `${MW_URL}/w/api.php?${params}`);
+//     }
+// }
+
+// type MWCsrfTokenResponse = {
+//     query: {
+//         tokens: {
+//             csrftoken: string
+//         }
+//     }
+// };
+// async function getCsrfToken() {
+//     const params = new URLSearchParams({ //API Get Params
+//         action: "query",
+//         meta: "tokens",
+//         format: "json"
+//     });
+
+//     try {
+//         console.log('[MW-Login] Fetching csrf token: ' + `${MW_URL}/w/api.php?${params}`);
+
+//         return await fetch(`${MW_URL}/w/api.php?${params}`, { method: 'GET', credentials: 'include' })
+//             .then((response) => {
+//                 return response.json() as Promise<MWCsrfTokenResponse>;
+//             }).then((data) => {
+//                 return data.query.tokens.csrftoken;
+//             })
+
+
+//     } catch (error) { //TODO: handle errors
+//         console.error('[MW-Login] Login error: ', error);
+//         throw new Error('[MW-Login] Failed get token: ' + `${MW_URL}/w/api.php?${params}`);
+//     }
+// }
 
 
 

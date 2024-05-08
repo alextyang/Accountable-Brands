@@ -1,6 +1,6 @@
 "use server";
 
-import { PotentialBrandPageList } from "./actions";
+import { PotentialBrandPageList } from "./components";
 
 
 

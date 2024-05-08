@@ -6,9 +6,12 @@ import { searchImages } from "./wikimedia";
 const DEBUG = false;
 export const WP_URL = 'https://en.wikipedia.org';
 
+const PROD_DIVIDER = '  •  ';
+const OWNER_DIVIDER = '  ➔  ';
+
 const PARAM_NAMES = { // Infobox labels to try for certain attributes
     NAME: ['name'],
-    BRANDS: ['brands', 'subsid', 'subsidiaries'],
+    BRANDS: ['divisions', 'brands', 'subsid', 'subsidiaries'],
     PRODUCTS: ['products', 'services'],
     OWNER: ['owner'],
     PARENT: ['parent'],
@@ -60,7 +63,7 @@ async function mapResponseToBrandPage(response: WPParseResponse): Promise<NewBra
     const text = response.parse.wikitext['*'];
 
     // Isolate {{Infobox ... }} wiki template
-    const infoboxStart = text.substring(text.indexOf('{{Infobox'));
+    const infoboxStart = text.substring(text.toLocaleLowerCase().indexOf('{{infobox'));
 
     let infobox = '';
     let openBrackets = 0;
@@ -77,7 +80,7 @@ async function mapResponseToBrandPage(response: WPParseResponse): Promise<NewBra
 
     const commonName = guessCommonName(infobox, name);
     const coverImage = await guessCoverImage(commonName);
-    const logo = await extractWikitextParameter(infobox, 'logo');
+    const logo = extractFileName(extractWikitextParameter(infobox, 'logo'));
 
     return {
         status: 'pending',
@@ -98,12 +101,36 @@ async function mapResponseToBrandPage(response: WPParseResponse): Promise<NewBra
     }
 }
 
+function capitalizeEach(arr: string[]): string[] {
+    return arr.map((str) => { return capitalize(str) });
+}
+
+function capitalize(str: string): string {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function titleCaseEach(arr: string[]): string[] {
+    return arr.map((str) => { return titleCase(str) });
+}
+
+function titleCase(str: string) {
+    return str.replace(
+        /\w\S*/g,
+        function (txt) {
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        }
+    );
+}
+
 function extractWikitextParameter(str: string, paramName: string): string {
     if (!str.includes(paramName))
         return '';
 
+    while (str.includes('  '))
+        str = str.replace('  ', ' ');
+
     const extractStart = str.substring(
-        str.indexOf(paramName + ' = ') + (paramName + ' = ').length);
+        str.indexOf(paramName + ' =') + (paramName + ' =').length);
 
     let extract = '';
     let openBrackets = 0;
@@ -129,9 +156,13 @@ function extractWikitextParameters(str: string, ...paramNames: string[]): string
     }).join(' ').trim();
 }
 
-function extractWikiLinks(str: string, relink: boolean): string[] {
+export function extractWikiLinkNames(str: string, relink: boolean): string[] {
     if (!str)
         return [];
+
+    if (!str.includes('[[')) {
+        return str.split('\n')
+    }
 
     const [_, ...links] = str.split('[[').map((linkItem) => {
         if (linkItem.indexOf('|') < linkItem.indexOf(']]'))
@@ -140,10 +171,38 @@ function extractWikiLinks(str: string, relink: boolean): string[] {
     });
 
     return links.map((link) => {
+
         if (relink)
             return '[[' + link + ']]';
         return link;
     });
+}
+
+export function extractWikiLinkRefs(str: string, relink: boolean): string[] {
+    if (!str)
+        return [];
+
+    const [_, ...links] = str.split('[[').map((linkItem) => {
+        if (linkItem.indexOf('|') < linkItem.indexOf(']]') && linkItem.includes('|'))
+            return linkItem.substring(0, linkItem.indexOf('|'));
+        return linkItem.substring(0, linkItem.indexOf(']]'));
+    });
+
+    return links.map((link) => {
+        if (relink)
+            return '[[' + link + ']]';
+        return link;
+    });
+}
+
+
+
+function extractFileName(str: string) {
+    str = str.replaceAll('[[File:', '');
+    if (str.includes('|')) {
+        str = str.substring(0, str.indexOf('|'));
+    }
+    return str;
 }
 
 async function guessCoverImage(commonName: string): Promise<{ url: string, previewUrl: string } | undefined> {
@@ -157,44 +216,56 @@ async function guessCoverImage(commonName: string): Promise<{ url: string, previ
             || coverImages[0].title.toLocaleLowerCase().includes(' hq ')
         ))
         coverImages.shift();
+
+    if (!coverImages[0])
+        return undefined;
     return { url: coverImages[0].title.substring('File:'.length), previewUrl: coverImages[0].previewUrl };
 }
 
 function guessProducts(infobox: string): string {
-    const products = extractWikiLinks(extractWikitextParameters(infobox, ...PARAM_NAMES.PRODUCTS), false);
-    return products.join('  •  ');
+    const products = extractWikiLinkNames(extractWikitextParameters(infobox, ...PARAM_NAMES.PRODUCTS), false);
+    return capitalizeEach(products).join(PROD_DIVIDER);
 }
 
 function guessBrands(infobox: string): string {
-    const brands = extractWikiLinks(
-        extractWikitextParameters(infobox, ...PARAM_NAMES.BRANDS), false
+    const brands = extractWikiLinkNames(
+        extractWikitextParameters(infobox, ...PARAM_NAMES.BRANDS), true
     );
-    return brands.join('  •  ');
+
+    const mergedBrands = brands.join('');
+
+    if (mergedBrands.includes('Unbulleted list'))
+        return mergedBrands.substring(
+            mergedBrands.indexOf('|') + 1,
+            mergedBrands.indexOf('}}')
+        ).split('|').map((str) => { return str.trim() }).join(PROD_DIVIDER);
+
+    return titleCaseEach(brands).join(PROD_DIVIDER);
 }
 
 function guessIndustry(infobox: string): string {
-    let industry = extractWikiLinks(extractWikitextParameters(infobox, ...PARAM_NAMES.INDUSTRY), false);
+    let industry = extractWikiLinkNames(extractWikitextParameters(infobox, ...PARAM_NAMES.INDUSTRY), false);
 
     if (industry.length > 0)
-        return industry.join(' • ');
+        return capitalizeEach(industry).join(PROD_DIVIDER);
     return '';
 }
 
 function guessOwner(infobox: string): string {
-    let owner = extractWikiLinks(extractWikitextParameters(infobox, ...PARAM_NAMES.OWNER), false);
-    let parent = extractWikiLinks(extractWikitextParameters(infobox, ...PARAM_NAMES.PARENT), false);
+    let owner = titleCaseEach(extractWikiLinkNames(extractWikitextParameters(infobox, ...PARAM_NAMES.OWNER), false));
+    let parent = titleCaseEach(extractWikiLinkNames(extractWikitextParameters(infobox, ...PARAM_NAMES.PARENT), false));
 
     if (parent.length > 0 && owner.length > 0)
-        return parent + ' ➔ ' + owner;
+        return parent.join(PROD_DIVIDER) + OWNER_DIVIDER + owner.join(PROD_DIVIDER);
     if (owner.length > 0)
-        return ' ➔ ' + owner.join(' • ');
+        return OWNER_DIVIDER + owner.join(PROD_DIVIDER);
     if (parent.length > 0)
-        return ' ➔ ' + parent.join(' • ');
+        return OWNER_DIVIDER + parent.join(PROD_DIVIDER);
     return '';
 }
 
 function guessCommonName(infobox: string, backup: string): string {
-    const companyName = extractWikitextParameters(infobox, ...PARAM_NAMES.NAME);
+    const companyName = titleCase(extractWikitextParameters(infobox, ...PARAM_NAMES.NAME));
     const shortenedBackup = backup.includes('(') ? backup.substring(0, backup.indexOf('(')) : backup;
 
     return (companyName.length > 0 && companyName.length < backup.length) ? companyName : shortenedBackup;
